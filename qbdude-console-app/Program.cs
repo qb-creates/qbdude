@@ -52,7 +52,7 @@ class Program
             var selectedMCU = Microcontroller.DeviceDictionary[partNumber];
             var programData = await HexReaderUtility.ExtractProgramData(filepath, token);
 
-            await UploadUtility.UploadProgramData(com, programData, selectedMCU, token);
+            await UploadUtility.UploadProgramData(com, programData, selectedMCU, force, token);
             Console.WriteLine($"qbdude done. Thank you.");
         }
         catch (OperationCanceledException)

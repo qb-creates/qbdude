@@ -41,9 +41,6 @@ public sealed class Microcontroller
                             {0x06, 1024}
                         }
                     }
-        },
-        {
-            "m32", new Microcontroller(){ Name = "ATmega32", Signature = new byte[] {0x1E, 0x95, 0x02}, FlashSize = 32768, PageSize = 128}
         }
     };
 
@@ -72,10 +69,21 @@ public sealed class Microcontroller
     /// <summary>
     /// 
     /// </summary>
+    public IReadOnlyDictionary<int, int> BootFlashSizeDictionary { get; private set; } = new Dictionary<int, int>();
+
     public byte BootConfigMask { get; private set; }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public IReadOnlyDictionary<int, int> BootFlashSizeDictionary { get; private set; } = new Dictionary<int, int>();
+    public int GetBootConfigSize(int highFuseBits, out bool bootResetEnabled)
+    {
+        int bootConfigByte = highFuseBits & BootConfigMask;
+
+        if (!BootFlashSizeDictionary.ContainsKey(bootConfigByte))
+        {
+            bootResetEnabled = false;
+            return 0;
+        }
+
+        bootResetEnabled = true;
+        return BootFlashSizeDictionary[bootConfigByte];
+    }
 }

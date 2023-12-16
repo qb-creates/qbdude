@@ -48,5 +48,6 @@ public enum ExitCode
     FailedToOpenCom = 4,
     UploadCanceled = 5,
     CommunicationError = 6,
-    Error = 7
+    ProgramSizeTooLarge = 7,
+    Error = 8
 }

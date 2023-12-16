@@ -11,17 +11,23 @@ namespace qbdude.utilities;
 /// </summary>
 public static class HexReaderUtility
 {
-    private static readonly Regex s_dataMatcher = new Regex(@"[A-F0-9]{2}");
     private const string INTEL_EOF_RECORD = ":00000001FF";
     private const int HEX_RECORD_MINIMUM_LENGTH = 11;
     private const int PROGRAM_DATA_FIELD_INDEX = 9;
     private const int EOL_Length = 2;
+    private const int MAX_PROGRAM_DATA_SIZE = 131072;
+
+    private static readonly Regex s_dataMatcher = new Regex(@"[A-F0-9]{2}");
     
     /// <summary>
     /// Will extract the program data from the specified hex file.
     /// </summary>
     /// <param name="filePath">The path to the hex file.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>Returns an array of the extracted program data.</returns>
+    /// <exception cref="HexFileNotFoundException"></exception>
+    /// <exception cref="InvalidHexFileException"></exception>
+    /// <exception cref="Exception"></exception>
     public static async Task<List<byte>> ExtractProgramData(string filePath, CancellationToken cancellationToken)
     {
         Console.WriteLine($"Reading input file '{filePath}'\r\n");
@@ -63,6 +69,11 @@ public static class HexReaderUtility
             }
         }
 
+        if (programData.Count > MAX_PROGRAM_DATA_SIZE)
+        {
+            throw new ProgramSizeTooLargeException("Program size is too large for any of the supported microcontrollers.", new UploadErrorResult(ExitCode.ProgramSizeTooLarge));
+        }
+        
         return programData;
     }
 }
