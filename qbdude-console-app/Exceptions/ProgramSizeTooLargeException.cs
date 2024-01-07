@@ -10,7 +10,7 @@ public class ProgramSizeTooLargeException : CommandException
     private const string DEFAULT_MESSAGE = "Selected MCU does not have enough space for this program.";
 
     /// <summary>
-    /// Initializes a new instance of the CommunicationFailedException class with a specified error
+    /// Initializes a new instance of the ProgramSizeTooLargeException class with a specified error
     /// message, exit code, and a reference to the inner exception that is the cause of this exception.
     /// </summary>
     /// <param name="invocationResult">The result of a command handler invocation.</param>
@@ -20,7 +20,7 @@ public class ProgramSizeTooLargeException : CommandException
     }
 
     /// <summary>
-    /// Initializes a new instance of the CommunicationFailedException class with a specified error
+    /// Initializes a new instance of the ProgramSizeTooLargeException class with a specified error
     /// message, exit code, and a reference to the inner exception that is the cause of this exception.
     /// </summary>
     /// <param name="message">The error message that explains the reason for the exception.</param>
@@ -31,7 +31,7 @@ public class ProgramSizeTooLargeException : CommandException
     }
 
     /// <summary>
-    /// Initializes a new instance of the CommunicationFailedException class with a specified error
+    /// Initializes a new instance of the ProgramSizeTooLargeException class with a specified error
     /// message, exit code, and a reference to the inner exception that is the cause of this exception.
     /// </summary>
     /// <param name="message">The error message that explains the reason for the exception.</param>

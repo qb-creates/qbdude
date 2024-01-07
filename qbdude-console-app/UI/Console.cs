@@ -24,24 +24,24 @@ public static class Console
     /// <summary>
     /// Resize the console window to where all content printed to the console can be scene.
     /// </summary>
-    public static void ResizeConsoleWindow()
+    /// <param name="windowWidth">The width of the console window.</param>
+    public static void ResizeConsoleWindow(int windowWidth)
     {
         System.Console.CursorVisible = false;
 
         if (OperatingSystem.IsWindows())
         {
-            if (System.Console.WindowWidth < 110)
+            if (System.Console.WindowWidth < windowWidth)
             {
-                System.Console.BufferWidth = 110;
-                System.Console.WindowWidth = 110;
+                System.Console.BufferWidth = windowWidth;
+                System.Console.WindowWidth = windowWidth;
             }
         }
     }
 
     /// <summary>
-    /// Will enable/disable the resize and feature of the console window.
+    /// Will disable the resize and feature of the console window.
     /// </summary>
-    /// <param name="bRevert">True to enable window resize and maximize. False to disable window resize and maximize.</param>
     public static void DisableResizeMenuOptions()
     {
         IntPtr handle = GetConsoleWindow();
@@ -55,7 +55,7 @@ public static class Console
     }
 
     /// <summary>
-    /// Resets the menu for the console back to it's default state
+    /// Resets the menu for the console back to it's default state. Enables the resize feature of the console window.
     /// </summary>
     public static void ResetConsoleMenu()
     {

@@ -13,11 +13,20 @@ namespace qbdude.utilities;
 /// </summary>
 public static class UploadUtility
 {
+    // Microcontroller commands.
+    private const string READY_TO_UPDATE_COMMAND = "RTU\0";
+
+    // Microcontroller acknowledgement responses.
     private const string READY_TO_UPDATE_AKNOWLEDGEMENT = "CTU";
     private const string PAGE_AKNOWLEDGEMENT = "Page";
     private const char BYTE_AKNOWLEDGEMENT = '\r';
-    private const byte END_OF_PAGE_BTYE = 0xFF;
-    private const byte LAST_PAGE_BYTE = 0xFE;
+
+    // Page status indicators.
+    private const byte PAGE_CONTINUATION_INDICATOR = 0xFF;
+    private const byte LAST_PAGE_INDICATOR = 0xFE;
+
+    // Serial Port.
+    private const int COMMUNICATION_TIMEOUT = 5;
 
     private static Queue<List<byte>> _pageDataQueue = new Queue<List<byte>>();
     private static SerialPort _serialPort = new SerialPort();
@@ -28,11 +37,13 @@ public static class UploadUtility
     private static bool _forceUpdate;
 
     /// <summary>
-    /// Will upload the program data to the microcontroller
+    /// Will upload program data to the microcontroller.
     /// </summary>
-    /// <param name="comPort"></param>
-    /// <param name="programData"></param>
-    /// <param name="cancellationToken"></param>
+    /// <param name="comPort">The comport that will be used to transfer the program data.</param>
+    /// <param name="programData">The program data that will be sent to the microcontroller.</param>
+    /// <param name="mcu">The type of microcontroller that is being update.</param>
+    /// <param name="force">Force the update even if the signatures do not match.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns></returns>
     public static async Task UploadProgramData(string comPort, List<byte> programData, Microcontroller mcu, bool force, CancellationToken cancellationToken)
     {
@@ -46,53 +57,55 @@ public static class UploadUtility
         using (_serialPort = new SerialPort(comPort, 115200, Parity.None, 8, StopBits.One))
         {
             OpenComPort();
-            BuildPageDataQueue();
+            DefinePageDataQueue();
             StartBootloadProcess();
             await TransmitData();
         }
     }
 
+    /// <summary>
+    /// Open the selected comport.
+    /// </summary>
+    /// <exception cref="ComPortTimeoutException">Exception that is produced when the comport fails to open..</exception>
     private static void OpenComPort()
     {
-        int openAttempts = 3;
+        Console.WriteLine($"Opening {_serialPort.PortName}\r\n");
 
-        while (!_serialPort.IsOpen)
+        try
         {
-            Console.Write($"Opening {_serialPort.PortName}: {openAttempts} attempts remaining.\r");
-
-            try
-            {
-                _serialPort.Open();
-            }
-            catch
-            {
-                --openAttempts;
-            }
-
-            if (openAttempts == 0)
-            {
-                throw new ComPortTimeoutException($"Failed to open {_serialPort.PortName}.", new UploadErrorResult(ExitCode.FailedToOpenCom));
-            }
-
-            _cancellationToken.ThrowIfCancellationRequested();
+            _serialPort.Open();
         }
+        catch
+        {
+            throw new ComPortTimeoutException($"Failed to open {_serialPort.PortName}.", new UploadErrorResult(ExitCode.FailedToOpenCom));
+        }
+
+        _cancellationToken.ThrowIfCancellationRequested();
     }
 
-    private static void BuildPageDataQueue()
+    /// <summary>
+    /// Will define a queue where each item in the queue is a list of bytes.
+    /// Each list of bytes will contain an entire page of program data. 
+    /// The page number is prepended to the front of each list. 
+    /// A page status byte is appended to the end of the list. 
+    /// The page status byte will indicate if the list of page data is the final or if there is more data to be sent.
+    /// </summary>
+    private static void DefinePageDataQueue()
     {
         int pageCount = 0;
 
         while (_programData.Count != 0)
         {
-            int lastPageLength = Math.Min(_programData.Count, _selectedMCU.PageSize);
+            // Grab an entire page of data or whatever remains
+            int dataCount = Math.Min(_programData.Count, _selectedMCU.PageSize);
 
-            // Retrieve
-            List<byte> tempByteList = _programData.GetRange(0, lastPageLength);
+            // Store the next page of data in a t
+            List<byte> tempByteList = _programData.GetRange(0, dataCount);
 
             // Remove tha
-            _programData.RemoveRange(0, lastPageLength);
+            _programData.RemoveRange(0, dataCount);
 
-            // Fill the byte list with 0xFF until it is equal to the mcuPageSize
+            // Fill the temp byte list with 0xFF until it is equal to the mcuPageSize.
             while (tempByteList.Count < _selectedMCU.PageSize)
             {
                 tempByteList.Add(0xFF);
@@ -102,8 +115,8 @@ public static class UploadUtility
             tempByteList.Insert(0, (byte)pageCount);
             tempByteList.Insert(0, (byte)(pageCount >> 8));
 
-            // Add the ending byte for this page to the list. This byte will inform the mcu that there is more
-            byte endingByte = lastPageLength < _selectedMCU.PageSize ? LAST_PAGE_BYTE : END_OF_PAGE_BTYE;
+            // Add the ending byte for this page to the list.
+            byte endingByte = _programData.Count != 0 ? PAGE_CONTINUATION_INDICATOR : LAST_PAGE_INDICATOR;
             tempByteList.Add(endingByte);
 
             _pageDataQueue.Enqueue(tempByteList);
@@ -111,27 +124,34 @@ public static class UploadUtility
         }
     }
 
+    /// <summary>
+    /// Will start the bootload process. Will check the device's signature and high fuse bits. If the device's signature
+    /// matches the selected part number and there is enough space on the microntroller for the program data, the upload process will begin.
+    /// </summary>
+    /// <exception cref="DeviceErrorException">Exception that is produced when there is an error with the devices signature or boot configuration.</exception>
+    /// <exception cref="ProgramSizeTooLargeException">Exception that is produced when the program data size is too large to fit on the microcontroller.</exception>
+    /// <exception cref="CommunicationFailedException">Exception that is produced when communication with the microcontroller is lost.</exception>
     private static void StartBootloadProcess()
     {
-        _serialPort.ReadTimeout = 100;
-        _serialPort.Write("RTU\0");
+        _serialPort.ReadTimeout = 1000;
+        _serialPort.Write(READY_TO_UPDATE_COMMAND);
 
         try
         {
             byte[] signature = new byte[3];
             _serialPort.Read(signature, 0, 3);
-            
+
             int highFuseBits = _serialPort.ReadByte();
             int bootFlashSize = _selectedMCU.GetBootConfigSize(highFuseBits, out bool bootResetEnabled);
 
             if (!_selectedMCU.Signature.SequenceEqual(signature) && !_forceUpdate)
             {
-                throw new CommandException("Signatures do not match", new ErrorResult());
+                throw new DeviceErrorException("Device signature does not match the part number entered.", new ErrorResult());
             }
 
             if (!bootResetEnabled)
             {
-                throw new CommandException("Boot Reset not enabled", new ErrorResult());
+                throw new DeviceErrorException("Boot Reset bit is not enabled.", new ErrorResult());
             }
 
             if (_programDataCount > _selectedMCU.FlashSize - bootFlashSize)
@@ -147,6 +167,12 @@ public static class UploadUtility
         }
     }
 
+    /// <summary>
+    /// Will transmit all of the program data to the microcontroller. Each page will be sent to the selected microcontroller one
+    /// page at a time. A page acknolowdgement string must be received before the next page is sent. 
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="CommunicationFailedException">Exception that is produced when communication with the microcontroller is lost.</exception>
     private static async Task TransmitData()
     {
         string receivedData = string.Empty;
@@ -185,7 +211,7 @@ public static class UploadUtility
                     stopwatch.Restart();
                 }
 
-                if (stopwatch.Elapsed.Seconds > 5)
+                if (stopwatch.Elapsed.TotalSeconds > COMMUNICATION_TIMEOUT)
                 {
                     throw new CommunicationFailedException(new UploadErrorResult(ExitCode.CommunicationError));
                 }

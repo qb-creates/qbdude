@@ -1,54 +1,76 @@
 using System.CommandLine;
+using System.IO.Ports;
 using qbdude.exceptions;
 using qbdude.invocation.results;
+using qbdude.Models;
+using qbdude.utilities;
 using static qbdude.validators.OptionValidator;
 
 namespace qbdude.extensions;
 
 /// <summary>
-/// Holds a collection of extentions methods for the RootCommand class/>
+/// Holds a collection of extentions methods for the RootCommand class./>
 /// </summary>
 public static class RootCommandExtensions
 {
     /// <summary>
-    /// Adds a comport sub command.
+    /// Adds a comport sub command. Running this command will print out a list of available com ports.
     /// </summary>
     /// <param name="rootCommand">Reference to the root command</param>
-    /// <param name="comPortsAction">Action to invoke when the comport command is passed in.</param>
     /// <returns>The same instance RootCommand.</returns>
-    public static RootCommand AddComPortsCommand(this RootCommand rootCommand, Action comPortsAction)
+    public static RootCommand AddComPortsCommand(this RootCommand rootCommand)
     {
         var getComPortsCommand = new Command("comport", "Get a list of available com ports.");
 
-        getComPortsCommand.SetHandler(() => comPortsAction());
+        getComPortsCommand.SetHandler(() =>
+        {
+            Console.WriteLine("\r\nAvailable Com Ports:");
+
+            foreach (string serialPort in SerialPort.GetPortNames())
+            {
+                Console.WriteLine(serialPort);
+            }
+
+            Console.WriteLine();
+        });
         rootCommand.AddCommand(getComPortsCommand);
 
         return rootCommand;
     }
 
     /// <summary>
-    /// Adds a partnumber sub command.
+    /// Adds a partnumber sub command. Running this command will print out the name and part number of all of the
+    /// supported microcontrollers. 
     /// </summary>
     /// <param name="rootCommand">Reference to the root command</param>
-    /// <param name="partNumbersAction">Action to invoke when the partnumber command is passed in.</param>
     /// <returns>The same instance RootCommand.</returns>
-    public static RootCommand AddPartNumbersCommand(this RootCommand rootCommand, Action partNumbersAction)
+    public static RootCommand AddPartNumbersCommand(this RootCommand rootCommand)
     {
         var getPartNumbersCommand = new Command("partnumber", "Get a list of supported avr microcontrollers and their part number.");
 
-        getPartNumbersCommand.SetHandler(() => partNumbersAction());
+        getPartNumbersCommand.SetHandler(() =>
+        {
+            Console.WriteLine($"\r\n{"Name",-15}{"Part Number",-15}{"Flash Size",-20}{"Signature",-10}");
+
+            foreach (KeyValuePair<string, Microcontroller> kvp in Microcontroller.DeviceDictionary)
+            {
+                var signature = String.Join("", kvp.Value.Signature);
+                Console.WriteLine($"{kvp.Value.Name,-15}{kvp.Key,-15}{kvp.Value.FlashSize,-20}{signature,-20}");
+            }
+
+            Console.WriteLine();
+        });
         rootCommand.AddCommand(getPartNumbersCommand);
 
         return rootCommand;
     }
 
     /// <summary>
-    /// Adds an upload sub command.
+    /// Adds an upload sub command. Running th is command will start the upload process to the microcontroller.
     /// </summary>
     /// <param name="rootCommand">Reference to the root command</param>
-    /// <param name="uploadFunc">Action to invoke when the upload command is passed in.</param>
     /// <returns>The same instance RootCommand.</returns>
-    public static RootCommand AddUploadCommand(this RootCommand rootCommand, Func<string, string, string, bool, CancellationToken, Task<ExitCode>> uploadFunc)
+    public static RootCommand AddUploadCommand(this RootCommand rootCommand)
     {
         var forceUploadOption = new Option<bool>("-f", "Will force upload for invalid signatures.");
 
@@ -85,11 +107,18 @@ public static class RootCommandExtensions
             var force = context.ParseResult.GetValueForOption(forceUploadOption);
             var token = context.GetCancellationToken();
 
-            var exitCode = await uploadFunc(partNumber!, com!, filepath!, force, token);
-
-            if (exitCode == ExitCode.UploadCanceled)
+            try
             {
-                context.InvocationResult = new CancellationResult(exitCode);
+                var selectedMCU = Microcontroller.DeviceDictionary[partNumber!];
+                var programData = await HexReaderUtility.ExtractProgramData(filepath!, token);
+
+                await UploadUtility.UploadProgramData(com!, programData, selectedMCU, force, token);
+                Console.WriteLine($"qbdude done. Thank you.");
+            }
+            catch (OperationCanceledException)
+            {
+                Console.WriteLine("Exiting qbdude\r\n");
+                context.InvocationResult = new CancellationResult(ExitCode.UploadCanceled);
             }
         });
 
