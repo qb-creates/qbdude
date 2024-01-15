@@ -1,7 +1,7 @@
 using System.CommandLine;
 using System.CommandLine.Builder;
-using System.CommandLine.Help;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.Reflection;
 using qbdude.exceptions;
 using qbdude.invocation.results;
@@ -44,7 +44,9 @@ public static class CommandLineBuilderExtensions
         {
             if (context.ParseResult.Errors.Count > 0)
             {
-                await context.ParseResult.CommandResult.Command.InvokeAsync("-h");                
+                var parser = new CommandLineBuilder(context.ParseResult.CommandResult.Command).UseHelp("-h").Build();
+                await parser.InvokeAsync("-h" );
+
                 context.InvocationResult = new ParseErrorResult(errorExitCode);
 
                 if (context.ParseResult.CommandResult.Command.Name != Program.fileVersionInfo.ProductName)
@@ -63,7 +65,7 @@ public static class CommandLineBuilderExtensions
 
     private static void PrintHeader()
     {
-        var fontPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location); 
+        var fontPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location);
         var font = FigletFont.Load($"{fontPath}\\Assets\\small.flf");
 
         Console.WriteLine("");
@@ -71,12 +73,12 @@ public static class CommandLineBuilderExtensions
     }
 
     private static void PrintError(InvocationContext context)
-    {        
+    {
         foreach (var error in context.ParseResult.Errors)
         {
             Console.WriteLine(error.ToString(), textColor: ConsoleColor.Red);
         }
-        
+
         Console.WriteLine("");
     }
 }

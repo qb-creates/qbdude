@@ -42,7 +42,7 @@ class Program
 
         Console.WriteLine($"qbdude version: {fileVersionInfo.ProductVersion}, http://sdfsdf");
         Console.ResetConsoleMenu();
-        Console.WriteLine(exitCode.ToString());
+
         return exitCode;
     }
 }
