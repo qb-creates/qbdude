@@ -4,7 +4,7 @@ using qbdude.exceptions;
 namespace qbdude.invocation.results;
 
 /// <summary>
-/// Cancellation invocation result. Result when the app is cancelled via ctrl+c.
+/// Cancellation invocation result. This result is returned when the app is cancelled via ctrl + c.
 /// </summary>
 public class CancellationResult : IInvocationResult
 {

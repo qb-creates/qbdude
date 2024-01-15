@@ -4,7 +4,7 @@ using qbdude.exceptions;
 namespace qbdude.invocation.results;
 
 /// <summary>
-/// Upload error invocation result. Result when there is an error uploading the program data to the microcontroller.
+/// Upload error invocation result. This result is returned when there is an error uploading the program data to the microcontroller.
 /// </summary>
 public class UploadErrorResult : IInvocationResult
 {

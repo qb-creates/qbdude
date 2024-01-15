@@ -33,6 +33,7 @@ public static class RootCommandExtensions
 
             Console.WriteLine();
         });
+
         rootCommand.AddCommand(getComPortsCommand);
 
         return rootCommand;
@@ -60,6 +61,7 @@ public static class RootCommandExtensions
 
             Console.WriteLine();
         });
+
         rootCommand.AddCommand(getPartNumbersCommand);
 
         return rootCommand;
@@ -101,6 +103,7 @@ public static class RootCommandExtensions
 
         uploadCommand.SetHandler(async (context) =>
         {
+            Exception? exception = null;
             var partNumber = context.ParseResult.GetValueForOption(partNumberOption);
             var com = context.ParseResult.GetValueForOption(comportOption);
             var filepath = context.ParseResult.GetValueForOption(filePathOption);
@@ -115,10 +118,20 @@ public static class RootCommandExtensions
                 await UploadUtility.UploadProgramData(com!, programData, selectedMCU, force, token);
                 Console.WriteLine($"qbdude done. Thank you.");
             }
-            catch (OperationCanceledException)
+            catch (Exception e) when (e is CommandException || e is OperationCanceledException)
             {
-                Console.WriteLine("Exiting qbdude\r\n");
-                context.InvocationResult = new CancellationResult(ExitCode.UploadCanceled);
+                exception = e;
+                var commandException = (CommandException)e;
+                context.InvocationResult = (e is CommandException) ? commandException.InvocationResult : new CancellationResult(ExitCode.UploadCanceled);
+                ui.Console.WriteLine($"{e?.Message!}\r\n");
+            }
+            finally
+            {
+                var textColor = exception == null ? ConsoleColor.Green : ConsoleColor.Red;
+                var successText = exception == null ? "SUCCESS" : "FAILURE";
+                Console.Write($"==============================[");
+                ui.Console.Write($"{successText}", textColor: textColor);
+                ui.Console.WriteLine($"]====================================\r\n");
             }
         });
 

@@ -67,7 +67,7 @@ public sealed class Microcontroller
     public int PageSize { get; private set; }
 
     /// <summary>
-    /// 
+    /// Dictionary that contains the different boot size options this microcontroller has.
     /// </summary>
     public IReadOnlyDictionary<int, int> BootFlashSizeDictionary { get; private set; } = new Dictionary<int, int>();
 

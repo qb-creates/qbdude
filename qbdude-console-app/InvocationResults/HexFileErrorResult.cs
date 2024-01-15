@@ -4,7 +4,7 @@ using qbdude.exceptions;
 namespace qbdude.invocation.results;
 
 /// <summary>
-/// Hex file error invocation result. Result when there is an error reading the hex file.
+/// Hex file error invocation result. This result is returned when there is an issue with the format of hex file.
 /// </summary>
 public class HexFileErrorResult : IInvocationResult
 {

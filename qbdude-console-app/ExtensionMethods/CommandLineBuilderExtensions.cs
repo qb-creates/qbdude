@@ -11,7 +11,7 @@ using Console = qbdude.ui.Console;
 namespace qbdude.extensions;
 
 /// <summary>
-/// Holds a collection of extentions methods for the CommandLineBuilder class/>
+/// Holds a collection of extention methods for the CommandLineBuilder class./>
 /// </summary>
 public static class CommandLineBuilderExtensions
 {
@@ -26,7 +26,7 @@ public static class CommandLineBuilderExtensions
          {
              PrintHeader();
              await next(context);
-         }, MiddlewareOrder.Configuration);
+         }, (MiddlewareOrder)(-1500));
 
         return commandLineBuilder;
     }
@@ -47,34 +47,15 @@ public static class CommandLineBuilderExtensions
                 await context.ParseResult.CommandResult.Command.InvokeAsync("-h");                
                 context.InvocationResult = new ParseErrorResult(errorExitCode);
 
-                PrintError(context);
+                if (context.ParseResult.CommandResult.Command.Name != Program.fileVersionInfo.ProductName)
+                {
+                    PrintError(context);
+                }
+
                 return;
             }
 
             await next(context);
-        });
-
-        return commandLineBuilder;
-    }
-
-    /// <summary>
-    /// Configures the application to show help when one of the specified option aliases
-    /// are used on the command line. Prints the header before printing the help text.
-    /// </summary>
-    /// <param name="commandLineBuilder">A command line builder.</param>
-    /// <param name="helpAliases">The set of aliases that can be specified on the command line to request help</param>
-    /// <returns>The same instance of CommandLineBuilder.</returns>
-    public static CommandLineBuilder ConfigureHelp(this CommandLineBuilder commandLineBuilder, params string[] helpAliases)
-    {
-        commandLineBuilder.UseHelp(helpAliases).UseHelp(ctx =>
-        {
-            ctx.HelpBuilder.CustomizeLayout(ctx =>
-            {
-                var helpSectionDelegate = HelpBuilder.Default.GetLayout()
-                .Prepend(ctx => PrintHeader());
-
-                return helpSectionDelegate;
-            });
         });
 
         return commandLineBuilder;
@@ -95,5 +76,7 @@ public static class CommandLineBuilderExtensions
         {
             Console.WriteLine(error.ToString(), textColor: ConsoleColor.Red);
         }
+        
+        Console.WriteLine("");
     }
 }

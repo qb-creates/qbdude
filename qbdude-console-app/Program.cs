@@ -1,6 +1,8 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
+using System.Diagnostics;
+using System.Reflection;
 using qbdude.exceptions;
 using qbdude.extensions;
 using qbdude.invocation.results;
@@ -10,6 +12,8 @@ namespace qbdude;
 
 class Program
 {
+    public static FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
+    
     static async Task<int> Main(string[] args)
     {
         Console.ResizeConsoleWindow(110);
@@ -21,9 +25,9 @@ class Program
                    .AddPartNumbersCommand();
 
         var parser = new CommandLineBuilder(rootCommand)
-                    .ConfigureHelp("-h")
-                    .AddParseErrorReport(ExitCode.ParseError)
+                    .UseHelp("-h")
                     .PrintHeaderForCommands()
+                    .AddParseErrorReport(ExitCode.ParseError)
                     .CancelOnProcessTermination()
                     .UseExceptionHandler((e, ctx) =>
                     {
@@ -35,15 +39,10 @@ class Program
                     .Build();
 
         var exitCode = await parser.InvokeAsync(args);
-        var textColor = (ExitCode)exitCode == ExitCode.Success ? ConsoleColor.Green : ConsoleColor.Red;
-        var successText = (ExitCode)exitCode == ExitCode.Success ? "SUCCESS" : "FAILURE";
 
-        Console.Write($"==============================[");
-        Console.Write($"{successText}", textColor: textColor);
-        Console.WriteLine($"]====================================\r\n");
-
+        Console.WriteLine($"qbdude version: {fileVersionInfo.ProductVersion}, http://sdfsdf");
         Console.ResetConsoleMenu();
-
+        Console.WriteLine(exitCode.ToString());
         return exitCode;
     }
 }

@@ -7,7 +7,7 @@ using Console = qbdude.ui.Console;
 namespace qbdude.utilities;
 
 /// <summary>
-/// Utility that is used to read a .hex file and extract the program data records from it.
+/// Utility that is used to read a hex file and extract the program data records from it.
 /// </summary>
 public static class HexReaderUtility
 {
@@ -34,7 +34,7 @@ public static class HexReaderUtility
         
         if (!File.Exists(filePath))
         {
-            throw new HexFileNotFoundException($"Can't open file {filePath}: No such file or directory.\r\n", new ParseErrorResult(ExitCode.HexFileNotFound), new FileNotFoundException());
+            throw new HexFileNotFoundException($"Can't open file {filePath}: No such file or directory.", new ParseErrorResult(ExitCode.HexFileNotFound), new FileNotFoundException());
         }
 
         List<byte> programData = new List<byte>();

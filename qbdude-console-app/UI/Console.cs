@@ -3,8 +3,11 @@ using System.Runtime.InteropServices;
 namespace qbdude.ui;
 
 /// <summary>
-/// Static wrapper for the System.Console class. Has custom Write/WriteLine methods where
-/// the text color and background color can be set.
+/// Static wrapper for the System.Console class. 
+/// Has custom Write/WriteLine methods where the text color and background color can be set.
+/// Has custom method for disabling the ability to resize the console window.
+/// 
+/// For more information on enabling/disabling certain features in the console window visit https://learn.microsoft.com/en-us/windows/win32/api/winuser/
 /// </summary>
 public static class Console
 {
