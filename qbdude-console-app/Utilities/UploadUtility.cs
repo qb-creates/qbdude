@@ -4,7 +4,6 @@ using qbdude.exceptions;
 using qbdude.invocation.results;
 using qbdude.Models;
 using qbdude.ui;
-using Console = qbdude.ui.Console;
 
 namespace qbdude.utilities;
 
@@ -69,7 +68,7 @@ public static class UploadUtility
     /// <exception cref="ComPortTimeoutException">Exception that is produced when the comport fails to open..</exception>
     private static void OpenComPort()
     {
-        Console.WriteLine($"Opening {_serialPort.PortName}\r\n");
+        ConsoleWrapper.WriteLine($"Opening {_serialPort.PortName}\r\n");
 
         try
         {
@@ -159,7 +158,7 @@ public static class UploadUtility
                 throw new ProgramSizeTooLargeException(new UploadErrorResult(ExitCode.ProgramSizeTooLarge));
             }
 
-            Console.WriteLine($"{_serialPort.PortName} open: Writing flash ({_programDataCount} bytes)\r\n");
+            ConsoleWrapper.WriteLine($"{_serialPort.PortName} open: Writing flash ({_programDataCount} bytes)\r\n");
         }
         catch (TimeoutException)
         {

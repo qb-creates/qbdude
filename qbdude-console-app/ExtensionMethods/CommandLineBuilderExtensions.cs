@@ -5,8 +5,8 @@ using System.CommandLine.Parsing;
 using System.Reflection;
 using qbdude.exceptions;
 using qbdude.invocation.results;
+using qbdude.ui;
 using Spectre.Console;
-using Console = qbdude.ui.Console;
 
 namespace qbdude.extensions;
 
@@ -68,7 +68,7 @@ public static class CommandLineBuilderExtensions
         var fontPath = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location);
         var font = FigletFont.Load($"{fontPath}\\Assets\\small.flf");
 
-        Console.WriteLine("");
+        ConsoleWrapper.WriteLine();
         AnsiConsole.Write(new FigletText(font, "QB.DUDE").Color(Color.Green1));
     }
 
@@ -76,9 +76,9 @@ public static class CommandLineBuilderExtensions
     {
         foreach (var error in context.ParseResult.Errors)
         {
-            Console.WriteLine(error.ToString(), textColor: ConsoleColor.Red);
+            ConsoleWrapper.WriteLine($"<c:red>{error}</c:>");
         }
 
-        Console.WriteLine("");
+        ConsoleWrapper.WriteLine();
     }
 }

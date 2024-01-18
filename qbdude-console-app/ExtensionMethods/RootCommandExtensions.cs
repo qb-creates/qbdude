@@ -3,6 +3,7 @@ using System.IO.Ports;
 using qbdude.exceptions;
 using qbdude.invocation.results;
 using qbdude.Models;
+using qbdude.ui;
 using qbdude.utilities;
 using static qbdude.validators.OptionValidator;
 
@@ -24,14 +25,14 @@ public static class RootCommandExtensions
 
         getComPortsCommand.SetHandler(() =>
         {
-            Console.WriteLine("\r\nAvailable Com Ports:");
+            ConsoleWrapper.WriteLine("\r\nAvailable Com Ports:");
 
             foreach (string serialPort in SerialPort.GetPortNames())
             {
-                Console.WriteLine(serialPort);
+                ConsoleWrapper.WriteLine(serialPort);
             }
 
-            Console.WriteLine();
+            ConsoleWrapper.WriteLine();
         });
 
         rootCommand.AddCommand(getComPortsCommand);
@@ -51,15 +52,15 @@ public static class RootCommandExtensions
 
         getPartNumbersCommand.SetHandler(() =>
         {
-            Console.WriteLine($"\r\n{"Name",-15}{"Part Number",-15}{"Flash Size",-20}{"Signature",-10}");
+            ConsoleWrapper.WriteLine($"\r\n{"Name",-15}{"Part Number",-15}{"Flash Size",-20}{"Signature",-10}");
 
             foreach (KeyValuePair<string, Microcontroller> kvp in Microcontroller.DeviceDictionary)
             {
                 var signature = String.Join("", kvp.Value.Signature);
-                Console.WriteLine($"{kvp.Value.Name,-15}{kvp.Key,-15}{kvp.Value.FlashSize,-20}{signature,-20}");
+                ConsoleWrapper.WriteLine($"{kvp.Value.Name,-15}{kvp.Key,-15}{kvp.Value.FlashSize,-20}{signature,-20}");
             }
 
-            Console.WriteLine();
+            ConsoleWrapper.WriteLine();
         });
 
         rootCommand.AddCommand(getPartNumbersCommand);
@@ -90,7 +91,8 @@ public static class RootCommandExtensions
 
         var filePathOption = new Option<string>("-F", "The Filepath to the hex file.")
         {
-            IsRequired = true
+            IsRequired = true,
+            ArgumentHelpName = "FILEPATH"
         };
 
         var uploadCommand = new Command("upload", "This command will upload the program to the microcontroller")
@@ -103,12 +105,12 @@ public static class RootCommandExtensions
 
         uploadCommand.SetHandler(async (context) =>
         {
-            Exception? exception = null;
             var partNumber = context.ParseResult.GetValueForOption(partNumberOption);
             var com = context.ParseResult.GetValueForOption(comportOption);
             var filepath = context.ParseResult.GetValueForOption(filePathOption);
             var force = context.ParseResult.GetValueForOption(forceUploadOption);
             var token = context.GetCancellationToken();
+            Exception? exception = null;
 
             try
             {
@@ -116,22 +118,20 @@ public static class RootCommandExtensions
                 var programData = await HexReaderUtility.ExtractProgramData(filepath!, token);
 
                 await UploadUtility.UploadProgramData(com!, programData, selectedMCU, force, token);
-                Console.WriteLine($"qbdude done. Thank you.");
+                ConsoleWrapper.WriteLine($"qbdude done. Thank you.");
             }
             catch (Exception e) when (e is CommandException || e is OperationCanceledException)
             {
                 exception = e;
                 var commandException = (CommandException)e;
                 context.InvocationResult = (e is CommandException) ? commandException.InvocationResult : new CancellationResult(ExitCode.UploadCanceled);
-                ui.Console.WriteLine($"{e?.Message!}\r\n");
+                ConsoleWrapper.WriteLine($"{e?.Message!}\r\n");
             }
             finally
             {
                 var textColor = exception == null ? ConsoleColor.Green : ConsoleColor.Red;
-                var successText = exception == null ? "SUCCESS" : "FAILURE";
-                Console.Write($"==============================[");
-                ui.Console.Write($"{successText}", textColor: textColor);
-                ui.Console.WriteLine($"]====================================\r\n");
+                var successText = exception == null ? "SUCCESS" : "FAILURE";                
+                ConsoleWrapper.WriteLine($"==============================[<c:{textColor}>{successText}</c:>]====================================\r\n");
             }
         });
 

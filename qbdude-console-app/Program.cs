@@ -6,7 +6,7 @@ using System.Reflection;
 using qbdude.exceptions;
 using qbdude.extensions;
 using qbdude.invocation.results;
-using Console = qbdude.ui.Console;
+using qbdude.ui;
 
 namespace qbdude;
 
@@ -16,8 +16,8 @@ class Program
     
     static async Task<int> Main(string[] args)
     {
-        Console.ResizeConsoleWindow(110);
-        Console.DisableResizeMenuOptions();
+        ConsoleWrapper.ResizeConsoleWindow(110);
+        ConsoleWrapper.DisableResizeMenuOptions();
 
         var rootCommand = new RootCommand("Uploader for qb.creates' bootloaders");
         rootCommand.AddUploadCommand()
@@ -34,14 +34,14 @@ class Program
                         var ex = (e as CommandException);
 
                         ctx.InvocationResult = ex != null ? ex.InvocationResult : new ErrorResult();
-                        Console.WriteLine($"{e?.Message!}\n\r");
+                        ConsoleWrapper.WriteLine($"{e?.Message!}\n\r");
                     })
                     .Build();
 
         var exitCode = await parser.InvokeAsync(args);
 
-        Console.WriteLine($"qbdude version: {fileVersionInfo.ProductVersion}, http://sdfsdf");
-        Console.ResetConsoleMenu();
+        ConsoleWrapper.WriteLine($"qbdude version: {fileVersionInfo.ProductVersion}, http://sdfsdf");
+        ConsoleWrapper.ResetConsoleMenu();
 
         return exitCode;
     }

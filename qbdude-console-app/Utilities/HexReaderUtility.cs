@@ -2,7 +2,6 @@ using System.Text.RegularExpressions;
 using qbdude.exceptions;
 using qbdude.invocation.results;
 using qbdude.ui;
-using Console = qbdude.ui.Console;
 
 namespace qbdude.utilities;
 
@@ -30,7 +29,7 @@ public static class HexReaderUtility
     /// <exception cref="Exception"></exception>
     public static async Task<List<byte>> ExtractProgramData(string filePath, CancellationToken cancellationToken)
     {
-        Console.WriteLine($"Reading input file '{filePath}'\r\n");
+        ConsoleWrapper.WriteLine($"Reading input file '{filePath}'\r\n");
         
         if (!File.Exists(filePath))
         {

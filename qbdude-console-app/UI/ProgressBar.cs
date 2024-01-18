@@ -55,7 +55,7 @@ public sealed class ProgressBar : IDisposable
 
         for (int i = 0; i < PROGRESS_BAR_SIZE; i++)
         {
-            _emptyProgressContainer.Append (" ");
+            _emptyProgressContainer.Append(" ");
         }
     }
 
@@ -68,7 +68,7 @@ public sealed class ProgressBar : IDisposable
         _isActive = false;
         _progressTimer?.Dispose();
 
-        Console.Write("\r\n\r\n");
+        ConsoleWrapper.Write("\r\n\r\n");
     }
 
     /// <summary>
@@ -82,10 +82,8 @@ public sealed class ProgressBar : IDisposable
         if (_isActive || _disposed)
             return;
 
-        Console.Write($"{_operationText} | ");
-        Console.Write($"{_emptyProgressContainer}", backgroundColor: ConsoleColor.Gray);
-        Console.Write($" | 0%");
-        _timeColumnPosition = Console.CursorColumnPosition + TIMER_TEXT_OFFSET;
+        ConsoleWrapper.Write($@"{_operationText} | <c:>{_emptyProgressContainer}</c:gray> | 0%");
+        _timeColumnPosition = ConsoleWrapper.CursorColumnPosition + TIMER_TEXT_OFFSET;
 
         await Task.Delay(START_TIMER_DELAY);
         _progressTimer = new Timer(ProgressBarTimer, null, 0, TIMER_UPDATE_FREQUENCY);
@@ -117,11 +115,8 @@ public sealed class ProgressBar : IDisposable
 
         lock (_progressBarLocker)
         {
-            Console.CursorColumnPosition = 0;
-            Console.Write($@"{_operationText} | ");
-            Console.Write($@"{_filledProgressContainer}", backgroundColor: ConsoleColor.Green);
-            Console.Write($@"{_emptyProgressContainer}", backgroundColor: ConsoleColor.Gray);
-            Console.Write($@" | {percentage}%");
+            ConsoleWrapper.CursorColumnPosition = 0;
+            ConsoleWrapper.Write($@"{_operationText} | <c:>{_filledProgressContainer}</c:green><c:>{_emptyProgressContainer}</c:gray> | {percentage}%");
         }
 
         _currentPercentage = percentage;
@@ -133,8 +128,8 @@ public sealed class ProgressBar : IDisposable
         {
             if (!_disposed)
             {
-                Console.CursorColumnPosition = _timeColumnPosition;
-                Console.Write($"{_elaspedTime:N2}s");
+                ConsoleWrapper.CursorColumnPosition = _timeColumnPosition;
+                ConsoleWrapper.Write($"{_elaspedTime:N2}s");
             }
         }
 
