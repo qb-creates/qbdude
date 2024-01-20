@@ -25,6 +25,15 @@ public static class ConsoleWrapper
     [DllImport("user32.dll")]
     private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
 
+    static ConsoleColor defaultTextColor = ConsoleColor.Black;
+    static ConsoleColor defaultBackgroundColor = ConsoleColor.Black;
+
+    static ConsoleWrapper()
+    {
+        defaultTextColor = Console.ForegroundColor;
+        defaultBackgroundColor = Console.BackgroundColor;
+    }
+    
     /// <summary>
     /// Resize the console window to where all content printed to the console can be scene.
     /// </summary>
@@ -109,7 +118,7 @@ public static class ConsoleWrapper
     {
         Console.SetCursorPosition(left, top);
     }
-    
+
     /// <summary>
     /// Writes the current line terminator to the standard output stream.
     /// </summary>
@@ -129,14 +138,15 @@ public static class ConsoleWrapper
     }
 
     /// <summary>
-    /// Writes the specified string value to the standard output stream. Use
+    /// Writes the specified string value to the standard output stream. A text color and background color can
+    /// be set for a string by wrapping it in a custom <c:"textColor"></c:"backgroundColor"> element. 
+    /// Example: This is the color <c:red>Red with a green background</c:green>
+    /// The colors have to be one of the selectable console colors.
     /// </summary>
     /// <param name="value">The value to write.</param>
     public static void Write(string value)
     {
-        //    Console.WriteLine("This is another test <c:red>My Color is Red</c>");
         var colorElements = Regex.Matches(value, @"<c:([a-zA-Z]+)?>.*?</c:([a-zA-Z]+)?>").Select(match => match.Value).ToArray();
-
 
         if (colorElements.Length == 0)
         {
@@ -145,22 +155,8 @@ public static class ConsoleWrapper
         }
 
         var textColors = colorElements.Select(element => element.Substring(3, element.IndexOf(">") - 3)).ToArray();
-
-        var backgroundColors = colorElements.Select(element =>
-        {
-            int startingIndex = element.LastIndexOf("<") + 4;
-            int endingIndex = element.LastIndexOf('>') - startingIndex;
-
-            return element.Substring(startingIndex, endingIndex);
-        }).ToArray();
-
-        var extractedText = colorElements.Select(element =>
-        {
-            int startingIndex = element.IndexOf(">") + 1;
-            int endingIndex = element.LastIndexOf('<') - startingIndex;
-
-            return element.Substring(startingIndex, endingIndex);
-        }).ToArray();
+        var backgroundColors = ParseColorElement(colorElements, "</c:", ">");
+        var extractedText = ParseColorElement(colorElements, ">", "</c:");
 
         int startingSubstring = 0;
 
@@ -171,23 +167,34 @@ public static class ConsoleWrapper
 
             Console.Write(value.Substring(startingSubstring, extractedTextIndex - startingSubstring));
 
-            if (Enum.TryParse(textColors[i], true, out ConsoleColor consoleColor))
+            if (Enum.TryParse(textColors[i], true, out ConsoleColor textColor))
             {
-                Console.ForegroundColor = consoleColor;
+                Console.ForegroundColor = textColor;
             }
 
-            if (Enum.TryParse(backgroundColors[i], true, out consoleColor))
+            if (Enum.TryParse(backgroundColors[i], true, out ConsoleColor backgroundColor))
             {
-                Console.BackgroundColor = consoleColor;
+                Console.BackgroundColor = backgroundColor;
             }
 
             Console.Write(extractedText[i]);
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = defaultTextColor;
+            Console.BackgroundColor = defaultBackgroundColor;
 
             startingSubstring = extractedTextIndex + extractedText[i].Length;
         }
 
         Console.Write(value.Substring(startingSubstring));
+    }
+
+    private static string[] ParseColorElement(string[] colorElements, string firstValue, string secondValue)
+    {
+        return colorElements.Select(element =>
+        {
+            int startingIndex = element.IndexOf(firstValue) + firstValue.Length;
+            int endingIndex = element.IndexOf(secondValue, startingIndex) - startingIndex;
+
+            return element.Substring(startingIndex, endingIndex);
+        }).ToArray();
     }
 }
