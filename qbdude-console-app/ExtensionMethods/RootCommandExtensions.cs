@@ -5,6 +5,7 @@ using qbdude.invocation.results;
 using qbdude.Models;
 using qbdude.ui;
 using qbdude.utilities;
+using Serilog;
 using static qbdude.validators.OptionValidator;
 
 namespace qbdude.extensions;
@@ -120,17 +121,31 @@ public static class RootCommandExtensions
                 await UploadUtility.UploadProgramData(com!, programData, selectedMCU, force, token);
                 ConsoleWrapper.WriteLine($"qbdude done. Thank you.");
             }
-            catch (Exception e) when (e is CommandException || e is OperationCanceledException)
+            catch (Exception e)
             {
                 exception = e;
-                var commandException = (CommandException)e;
-                context.InvocationResult = (e is CommandException) ? commandException.InvocationResult : new CancellationResult(ExitCode.UploadCanceled);
+
+                switch (exception)
+                {
+                    case CommandException:
+                        context.InvocationResult = (exception as CommandException)!.InvocationResult;
+                        break;
+                    case OperationCanceledException:
+                        context.InvocationResult = new CancellationResult(ExitCode.UploadCanceled);
+                        break;
+                    case Exception:
+                        context.InvocationResult = new ErrorResult();
+                        break;
+                }
+
+                Log.Error(e.ToString());
                 ConsoleWrapper.WriteLine($"{e?.Message!}\r\n");
             }
             finally
             {
                 var textColor = exception == null ? ConsoleColor.Green : ConsoleColor.Red;
-                var successText = exception == null ? "SUCCESS" : "FAILURE";                
+                var successText = exception == null ? "SUCCESS" : "FAILURE";
+                Log.Information($"Upload completed at {DateTime.Now}");
                 ConsoleWrapper.WriteLine($"==============================[<c:{textColor}>{successText}</c:>]====================================\r\n");
             }
         });
