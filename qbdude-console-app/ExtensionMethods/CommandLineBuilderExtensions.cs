@@ -45,7 +45,7 @@ public static class CommandLineBuilderExtensions
             if (context.ParseResult.Errors.Count > 0)
             {
                 var parser = new CommandLineBuilder(context.ParseResult.CommandResult.Command).UseHelp("-h").Build();
-                await parser.InvokeAsync("-h" );
+                await parser.InvokeAsync("-h");
 
                 context.InvocationResult = new ParseErrorResult(errorExitCode);
 

@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.IO.Ports;
 using qbdude.exceptions;
 using qbdude.invocation.results;
-using qbdude.Models;
+using qbdude.models;
 using qbdude.ui;
 
 namespace qbdude.utilities;
@@ -30,7 +30,7 @@ public static class UploadUtility
     private static Queue<List<byte>> _pageDataQueue = new Queue<List<byte>>();
     private static SerialPort _serialPort = new SerialPort();
     private static CancellationToken _cancellationToken;
-    private static Microcontroller _selectedMCU = Microcontroller.DeviceDictionary["m128"];
+    private static Microcontroller _selectedMCU;
     private static List<byte> _programData = new List<byte>();
     private static int _programDataCount;
     private static bool _forceUpdate;
@@ -83,11 +83,11 @@ public static class UploadUtility
     }
 
     /// <summary>
-    /// Will define a queue where each item in the queue is a list of bytes.
+    /// Will define a queue where each element in the queue is a list of bytes.
     /// Each list of bytes will contain an entire page of program data. 
     /// The page number is prepended to the front of each list. 
     /// A page status byte is appended to the end of the list. 
-    /// The page status byte will indicate if the list of page data is the final or if there is more data to be sent.
+    /// The page status byte will indicate if the list of page data is the last page or if there is more data to be sent.
     /// </summary>
     private static void DefinePageDataQueue()
     {
@@ -95,13 +95,14 @@ public static class UploadUtility
 
         while (_programData.Count != 0)
         {
-            // Grab an entire page of data or whatever remains
+            // The data count will be equal to the page size of the selected microcontroller unless
+            // the remaining number of bytes in the program data array is less than the page size.
             int dataCount = Math.Min(_programData.Count, _selectedMCU.PageSize);
 
-            // Store the next page of data in a t
+            // Store the the bytes in a temp byte list.
             List<byte> tempByteList = _programData.GetRange(0, dataCount);
 
-            // Remove tha
+            // Remove the bytes from the program data array.
             _programData.RemoveRange(0, dataCount);
 
             // Fill the temp byte list with 0xFF until it is equal to the mcuPageSize.
@@ -110,11 +111,11 @@ public static class UploadUtility
                 tempByteList.Add(0xFF);
             }
 
-            // Prepend the page number to the page data. Page is a 16 bit int so we have to separate it into two bytes.
+            // Prepend the page number to the page data. Page number is a 16 bits so we have to separate it into two bytes.
             tempByteList.Insert(0, (byte)pageCount);
             tempByteList.Insert(0, (byte)(pageCount >> 8));
 
-            // Add the ending byte for this page to the list.
+            // Prepend the page status byte to the list.
             byte endingByte = _programData.Count != 0 ? PAGE_CONTINUATION_INDICATOR : LAST_PAGE_INDICATOR;
             tempByteList.Add(endingByte);
 
@@ -140,7 +141,7 @@ public static class UploadUtility
             byte[] signature = new byte[3];
             _serialPort.Read(signature, 0, 3);
 
-            int highFuseBits = _serialPort.ReadByte();
+            byte highFuseBits = (byte)_serialPort.ReadByte();
             int bootFlashSize = _selectedMCU.GetBootConfigSize(highFuseBits, out bool bootResetEnabled);
 
             if (!_selectedMCU.Signature.SequenceEqual(signature) && !_forceUpdate)

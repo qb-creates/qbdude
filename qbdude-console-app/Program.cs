@@ -14,7 +14,7 @@ namespace qbdude;
 
 class Program
 {
-    public static FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
+    public static readonly FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
 
     static async Task<int> Main(string[] args)
     {
@@ -40,14 +40,13 @@ class Program
                 ConsoleWrapper.WriteLine($"{e?.Message!}\n\r");
             })
             .Build();
-        
+
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
-            .WriteTo.File($"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/.qbdude/logs/qbdude.txt", rollingInterval: RollingInterval.Day)
+            .WriteTo.File($"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/.qbdude/log.txt", rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
-        
-        Console.WriteLine(AppConfig.DeviceDictionary["m128"].Name);
+        AppConfig.Configure();
 
         var exitCode = await parser.InvokeAsync(args);
 

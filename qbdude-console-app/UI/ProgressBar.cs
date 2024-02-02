@@ -36,7 +36,7 @@ public sealed class ProgressBar : IDisposable
     private long _itemsCompleted = 0;
     private long _itemsToComplete = 0;
     private long _currentPercentage = 0;
-    private Timer? _progressTimer;
+    private Timer _progressTimer;
     private bool _isActive = false;
     private bool _disposed = false;
 
@@ -122,7 +122,7 @@ public sealed class ProgressBar : IDisposable
         _currentPercentage = percentage;
     }
 
-    private void ProgressBarTimer(object? state)
+    private void ProgressBarTimer(object state)
     {
         lock (_progressBarLocker)
         {

@@ -33,7 +33,7 @@ public static class ConsoleWrapper
         defaultTextColor = Console.ForegroundColor;
         defaultBackgroundColor = Console.BackgroundColor;
     }
-    
+
     /// <summary>
     /// Resize the console window to where all content printed to the console can be scene.
     /// </summary>
@@ -193,7 +193,6 @@ public static class ConsoleWrapper
         {
             int startingIndex = element.IndexOf(firstValue) + firstValue.Length;
             int endingIndex = element.IndexOf(secondValue, startingIndex) - startingIndex;
-
             return element.Substring(startingIndex, endingIndex);
         }).ToArray();
     }

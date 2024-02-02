@@ -1,8 +1,9 @@
 using System.CommandLine;
 using System.IO.Ports;
+using qbdude.config;
 using qbdude.exceptions;
 using qbdude.invocation.results;
-using qbdude.Models;
+using qbdude.models;
 using qbdude.ui;
 using qbdude.utilities;
 using Serilog;
@@ -15,143 +16,140 @@ namespace qbdude.extensions;
 /// </summary>
 public static class RootCommandExtensions
 {
-    /// <summary>
-    /// Adds a comport sub command. Running this command will print out a list of available com ports.
-    /// </summary>
-    /// <param name="rootCommand">Reference to the root command</param>
-    /// <returns>The same instance RootCommand.</returns>
-    public static RootCommand AddComPortsCommand(this RootCommand rootCommand)
-    {
-        var getComPortsCommand = new Command("comport", "Get a list of available com ports.");
+	/// <summary>
+	/// Adds a comport sub command. Running this command will print out a list of available com ports.
+	/// </summary>
+	/// <param name="rootCommand">Reference to the root command</param>
+	/// <returns>The same instance RootCommand.</returns>
+	public static RootCommand AddComPortsCommand(this RootCommand rootCommand)
+	{
+		var getComPortsCommand = new Command("comport", "Get a list of available com ports.");
 
-        getComPortsCommand.SetHandler(() =>
-        {
-            ConsoleWrapper.WriteLine("\r\nAvailable Com Ports:");
+		getComPortsCommand.SetHandler(() =>
+		{
+			ConsoleWrapper.WriteLine("\r\nAvailable Com Ports:");
 
-            foreach (string serialPort in SerialPort.GetPortNames())
-            {
-                ConsoleWrapper.WriteLine(serialPort);
-            }
+			foreach (string serialPort in SerialPort.GetPortNames())
+			{
+				ConsoleWrapper.WriteLine(serialPort);
+			}
 
-            ConsoleWrapper.WriteLine();
-        });
+			ConsoleWrapper.WriteLine();
+		});
 
-        rootCommand.AddCommand(getComPortsCommand);
+		rootCommand.AddCommand(getComPortsCommand);
+		return rootCommand;
+	}
 
-        return rootCommand;
-    }
+	/// <summary>
+	/// Adds a partnumber sub command. Running this command will print out the name and part number of all of the
+	/// supported microcontrollers. 
+	/// </summary>
+	/// <param name="rootCommand">Reference to the root command</param>
+	/// <returns>The same instance RootCommand.</returns>
+	public static RootCommand AddPartNumbersCommand(this RootCommand rootCommand)
+	{
+		var getPartNumbersCommand = new Command("partnumber", "Get a list of supported avr microcontrollers and their part number.");
 
-    /// <summary>
-    /// Adds a partnumber sub command. Running this command will print out the name and part number of all of the
-    /// supported microcontrollers. 
-    /// </summary>
-    /// <param name="rootCommand">Reference to the root command</param>
-    /// <returns>The same instance RootCommand.</returns>
-    public static RootCommand AddPartNumbersCommand(this RootCommand rootCommand)
-    {
-        var getPartNumbersCommand = new Command("partnumber", "Get a list of supported avr microcontrollers and their part number.");
+		getPartNumbersCommand.SetHandler(() =>
+		{
+			ConsoleWrapper.WriteLine($"\r\n{"Name",-15}{"Part Number",-15}{"Flash Size",-20}{"Signature",-10}");
 
-        getPartNumbersCommand.SetHandler(() =>
-        {
-            ConsoleWrapper.WriteLine($"\r\n{"Name",-15}{"Part Number",-15}{"Flash Size",-20}{"Signature",-10}");
+			foreach (KeyValuePair<string, Microcontroller> kvp in AppConfig.DeviceDictionary)
+			{
+				var signature = string.Join("", kvp.Value.Signature);
+				ConsoleWrapper.WriteLine($"{kvp.Value.Name,-15}{kvp.Key,-15}{kvp.Value.FlashSize,-20}{signature,-20}");
+			}
 
-            foreach (KeyValuePair<string, Microcontroller> kvp in Microcontroller.DeviceDictionary)
-            {
-                var signature = String.Join("", kvp.Value.Signature);
-                ConsoleWrapper.WriteLine($"{kvp.Value.Name,-15}{kvp.Key,-15}{kvp.Value.FlashSize,-20}{signature,-20}");
-            }
+			ConsoleWrapper.WriteLine();
+		});
 
-            ConsoleWrapper.WriteLine();
-        });
+		rootCommand.AddCommand(getPartNumbersCommand);
+		return rootCommand;
+	}
 
-        rootCommand.AddCommand(getPartNumbersCommand);
+	/// <summary>
+	/// Adds an upload sub command. Running th is command will start the upload process to the microcontroller.
+	/// </summary>
+	/// <param name="rootCommand">Reference to the root command</param>
+	/// <returns>The same instance RootCommand.</returns>
+	public static RootCommand AddUploadCommand(this RootCommand rootCommand)
+	{
+		var forceUploadOption = new Option<bool>("-f", "Will force upload for invalid signatures.");
 
-        return rootCommand;
-    }
+		var partNumberOption = new Option<string>(name: "-p", description: "The Part Number of the microcontroller.", parseArgument: OnValidatePartNumber)
+		{
+			IsRequired = true,
+			ArgumentHelpName = "PARTNUMBER"
+		};
 
-    /// <summary>
-    /// Adds an upload sub command. Running th is command will start the upload process to the microcontroller.
-    /// </summary>
-    /// <param name="rootCommand">Reference to the root command</param>
-    /// <returns>The same instance RootCommand.</returns>
-    public static RootCommand AddUploadCommand(this RootCommand rootCommand)
-    {
-        var forceUploadOption = new Option<bool>("-f", "Will force upload for invalid signatures.");
+		var comportOption = new Option<string>(name: "-C", description: "The com port that will be opened.", parseArgument: OnValidateComPort)
+		{
+			IsRequired = true,
+			ArgumentHelpName = "COMPORT"
+		};
 
-        var partNumberOption = new Option<string>(name: "-p", description: "The Part Number of the microcontroller.", parseArgument: OnValidatePartNumber)
-        {
-            IsRequired = true,
-            ArgumentHelpName = "PARTNUMBER"
-        };
+		var filePathOption = new Option<string>("-F", "The Filepath to the hex file.")
+		{
+			IsRequired = true,
+			ArgumentHelpName = "FILEPATH"
+		};
 
-        var comportOption = new Option<string>(name: "-C", description: "The com port that will be opened.", parseArgument: OnValidateComPort)
-        {
-            IsRequired = true,
-            ArgumentHelpName = "COMPORT"
-        };
+		var uploadCommand = new Command("upload", "This command will upload the program to the microcontroller")
+		{
+			partNumberOption,
+			comportOption,
+			filePathOption,
+			forceUploadOption
+		};
 
-        var filePathOption = new Option<string>("-F", "The Filepath to the hex file.")
-        {
-            IsRequired = true,
-            ArgumentHelpName = "FILEPATH"
-        };
+		uploadCommand.SetHandler(async (context) =>
+		{
+			var partNumber = context.ParseResult.GetValueForOption(partNumberOption);
+			var com = context.ParseResult.GetValueForOption(comportOption);
+			var filepath = context.ParseResult.GetValueForOption(filePathOption);
+			var force = context.ParseResult.GetValueForOption(forceUploadOption);
+			var token = context.GetCancellationToken();
+			Exception exception = null;
 
-        var uploadCommand = new Command("upload", "This command will upload the program to the microcontroller")
-        {
-            partNumberOption,
-            comportOption,
-            filePathOption,
-            forceUploadOption
-        };
+			try
+			{
+				var selectedMCU = AppConfig.DeviceDictionary[partNumber!];
+				var programData = await HexReaderUtility.ExtractProgramData(filepath!, token);
 
-        uploadCommand.SetHandler(async (context) =>
-        {
-            var partNumber = context.ParseResult.GetValueForOption(partNumberOption);
-            var com = context.ParseResult.GetValueForOption(comportOption);
-            var filepath = context.ParseResult.GetValueForOption(filePathOption);
-            var force = context.ParseResult.GetValueForOption(forceUploadOption);
-            var token = context.GetCancellationToken();
-            Exception? exception = null;
+				await UploadUtility.UploadProgramData(com!, programData, selectedMCU, force, token);
+				ConsoleWrapper.WriteLine($"qbdude done. Thank you.");
+			}
+			catch (Exception e)
+			{
+				exception = e;
 
-            try
-            {
-                var selectedMCU = Microcontroller.DeviceDictionary[partNumber!];
-                var programData = await HexReaderUtility.ExtractProgramData(filepath!, token);
+				switch (exception)
+				{
+					case CommandException:
+						context.InvocationResult = (exception as CommandException)!.InvocationResult;
+						break;
+					case OperationCanceledException:
+						context.InvocationResult = new CancellationResult(ExitCode.UploadCanceled);
+						break;
+					case Exception:
+						context.InvocationResult = new ErrorResult();
+						break;
+				}
 
-                await UploadUtility.UploadProgramData(com!, programData, selectedMCU, force, token);
-                ConsoleWrapper.WriteLine($"qbdude done. Thank you.");
-            }
-            catch (Exception e)
-            {
-                exception = e;
+				Log.Error(e.ToString());
+				ConsoleWrapper.WriteLine($"{e?.Message!}\r\n");
+			}
+			finally
+			{
+				var textColor = exception == null ? ConsoleColor.Green : ConsoleColor.Red;
+				var successText = exception == null ? "SUCCESS" : "FAILURE";
+				Log.Information($"Upload completed at {DateTime.Now}");
+				ConsoleWrapper.WriteLine($"==============================[<c:{textColor}>{successText}</c:>]====================================\r\n");
+			}
+		});
 
-                switch (exception)
-                {
-                    case CommandException:
-                        context.InvocationResult = (exception as CommandException)!.InvocationResult;
-                        break;
-                    case OperationCanceledException:
-                        context.InvocationResult = new CancellationResult(ExitCode.UploadCanceled);
-                        break;
-                    case Exception:
-                        context.InvocationResult = new ErrorResult();
-                        break;
-                }
-
-                Log.Error(e.ToString());
-                ConsoleWrapper.WriteLine($"{e?.Message!}\r\n");
-            }
-            finally
-            {
-                var textColor = exception == null ? ConsoleColor.Green : ConsoleColor.Red;
-                var successText = exception == null ? "SUCCESS" : "FAILURE";
-                Log.Information($"Upload completed at {DateTime.Now}");
-                ConsoleWrapper.WriteLine($"==============================[<c:{textColor}>{successText}</c:>]====================================\r\n");
-            }
-        });
-
-        rootCommand.AddCommand(uploadCommand);
-
-        return rootCommand;
-    }
+		rootCommand.AddCommand(uploadCommand);
+		return rootCommand;
+	}
 }

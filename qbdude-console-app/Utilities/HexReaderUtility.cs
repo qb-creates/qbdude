@@ -17,7 +17,7 @@ public static class HexReaderUtility
     private const int MAX_PROGRAM_DATA_SIZE = 131072;
 
     private static readonly Regex s_dataMatcher = new Regex(@"[A-F0-9]{2}");
-    
+
     /// <summary>
     /// Will extract the program data from the specified hex file.
     /// </summary>
@@ -30,7 +30,7 @@ public static class HexReaderUtility
     public static async Task<List<byte>> ExtractProgramData(string filePath, CancellationToken cancellationToken)
     {
         ConsoleWrapper.WriteLine($"Reading input file '{filePath}'\r\n");
-        
+
         if (!File.Exists(filePath))
         {
             throw new HexFileNotFoundException($"Can't open file {filePath}: No such file or directory.", new ParseErrorResult(ExitCode.HexFileNotFound), new FileNotFoundException());
@@ -43,7 +43,7 @@ public static class HexReaderUtility
         {
             await progressBar.Start();
             string[] fileRecords = File.ReadAllLines(filePath);
-            
+
             if (fileRecords.Last() != INTEL_EOF_RECORD || fileRecords.Any(line => line.Length < HEX_RECORD_MINIMUM_LENGTH))
             {
                 throw new InvalidHexFileException(new HexFileErrorResult(ExitCode.InvalidHexFile));
@@ -72,7 +72,7 @@ public static class HexReaderUtility
         {
             throw new ProgramSizeTooLargeException("Program size is too large for any of the supported microcontrollers.", new UploadErrorResult(ExitCode.ProgramSizeTooLarge));
         }
-        
+
         return programData;
     }
 }

@@ -1,6 +1,6 @@
 using System.CommandLine.Parsing;
 using System.IO.Ports;
-using qbdude.Models;
+using qbdude.config;
 
 namespace qbdude.validators;
 
@@ -19,7 +19,7 @@ public static class OptionValidator
     {
         var partNumber = result.Tokens.Single().Value;
 
-        if (!Microcontroller.DeviceDictionary.ContainsKey(partNumber))
+        if (!AppConfig.DeviceDictionary.ContainsKey(partNumber))
         {
             result.ErrorMessage = "Please enter a supported part number. Use qbdude partnumber to get supported devices.";
             return null!;

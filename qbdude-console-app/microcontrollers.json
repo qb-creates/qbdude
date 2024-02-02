@@ -1,0 +1,28 @@
+{
+    "m128": {
+        "name": "ATmega128",
+        "signature": ["0x1E","0x97","0x02"],
+        "flashSize": 131072,
+        "pageSize": 256,
+        "bootConfigMask": "0x07",
+        "bootFlashSizeDictionary": {
+            "0x00": 8192,
+            "0x02": 4086,
+            "0x04": 2048,
+            "0x06": 1024
+        }
+    },
+    "m1284": {
+        "name": "ATmega1284",
+        "signature": ["0x1E","0x97","0x06"],
+        "flashSize": 131072,
+        "pageSize": 256,
+        "bootConfigMask": "0x07",
+        "bootFlashSizeDictionary": {
+            "0x00": 8192,
+            "0x02": 4086,
+            "0x04": 2048,
+            "0x06": 1024
+        }
+    }
+}
