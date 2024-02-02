@@ -3,14 +3,14 @@ using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.Reflection;
-using qbdude.config;
-using qbdude.exceptions;
-using qbdude.extensions;
-using qbdude.invocation.results;
-using qbdude.ui;
+using QBdude.Config;
+using QBdude.Exceptions;
+using QBdude.Extensions;
+using QBdude.Invocation.Results;
+using QBdude.UI;
 using Serilog;
 
-namespace qbdude;
+namespace QBdude;
 
 class Program
 {

@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
-using qbdude.models;
+using QBdude.Models;
 
-namespace qbdude.config;
+namespace QBdude.Config;
 
 /// <summary>
 /// Static class used to configure the application.

@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
-namespace qbdude.ui;
+namespace QBdude.UI;
 
 /// <summary>
 /// Static wrapper for the System.Console class. 

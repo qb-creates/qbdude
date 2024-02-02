@@ -1,6 +1,6 @@
 using System.CommandLine.Invocation;
 
-namespace qbdude.exceptions;
+namespace QBdude.Exceptions;
 
 /// <summary>
 /// The exception that is thrown when the Com Port fails to open.

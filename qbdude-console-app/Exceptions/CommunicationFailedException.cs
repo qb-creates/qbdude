@@ -1,6 +1,6 @@
 using System.CommandLine.Invocation;
 
-namespace qbdude.exceptions;
+namespace QBdude.Exceptions;
 
 /// <summary>
 /// The exception that is thrown when there is a communication error with the microcontroller.

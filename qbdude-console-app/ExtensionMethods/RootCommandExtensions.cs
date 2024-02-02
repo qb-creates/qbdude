@@ -1,15 +1,15 @@
 using System.CommandLine;
 using System.IO.Ports;
-using qbdude.config;
-using qbdude.exceptions;
-using qbdude.invocation.results;
-using qbdude.models;
-using qbdude.ui;
-using qbdude.utilities;
+using QBdude.Config;
+using QBdude.Exceptions;
+using QBdude.Invocation.Results;
+using QBdude.Models;
+using QBdude.UI;
+using QBdude.Utilities;
 using Serilog;
-using static qbdude.validators.OptionValidator;
+using static QBdude.Validators.OptionValidator;
 
-namespace qbdude.extensions;
+namespace QBdude.Extensions;
 
 /// <summary>
 /// Holds a collection of extentions methods for the RootCommand class./>

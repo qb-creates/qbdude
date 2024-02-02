@@ -3,12 +3,12 @@ using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.Reflection;
-using qbdude.exceptions;
-using qbdude.invocation.results;
-using qbdude.ui;
+using QBdude.Exceptions;
+using QBdude.Invocation.Results;
+using QBdude.UI;
 using Spectre.Console;
 
-namespace qbdude.extensions;
+namespace QBdude.Extensions;
 
 /// <summary>
 /// Holds a collection of extention methods for the CommandLineBuilder class./>

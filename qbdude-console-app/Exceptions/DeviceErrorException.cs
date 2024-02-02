@@ -1,6 +1,6 @@
 using System.CommandLine.Invocation;
 
-namespace qbdude.exceptions;
+namespace QBdude.Exceptions;
 
 /// <summary>
 /// The exception that is thrown when the program size is too large to upload.

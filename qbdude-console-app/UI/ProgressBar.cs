@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace qbdude.ui;
+namespace QBdude.UI;
 
 /// <summary>
 /// Will create a progress bar UI element in the console. Nothing should be printed to the to the console

@@ -1,7 +1,7 @@
 using System.CommandLine.Invocation;
-using qbdude.exceptions;
+using QBdude.Exceptions;
 
-namespace qbdude.invocation.results;
+namespace QBdude.Invocation.Results;
 
 /// <summary>
 /// Hex file parse error invocation result. This result is returned when there is an error when reading or opening the hex file.

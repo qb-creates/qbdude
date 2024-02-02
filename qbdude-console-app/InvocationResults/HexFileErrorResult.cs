@@ -1,7 +1,7 @@
 using System.CommandLine.Invocation;
-using qbdude.exceptions;
+using QBdude.Exceptions;
 
-namespace qbdude.invocation.results;
+namespace QBdude.Invocation.Results;
 
 /// <summary>
 /// Hex file error invocation result. This result is returned when there is an issue with the format of hex file.

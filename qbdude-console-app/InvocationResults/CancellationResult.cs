@@ -1,7 +1,7 @@
 using System.CommandLine.Invocation;
-using qbdude.exceptions;
+using QBdude.Exceptions;
 
-namespace qbdude.invocation.results;
+namespace QBdude.Invocation.Results;
 
 /// <summary>
 /// Cancellation invocation result. This result is returned when the app is cancelled via ctrl + c.

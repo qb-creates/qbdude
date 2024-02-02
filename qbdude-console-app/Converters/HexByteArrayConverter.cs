@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using Serilog;
 
-namespace qbdude.converters;
+namespace QBdude.Converters;
 
 /// <summary>
 /// Converts an array of bytes to and from an array of hex literal as strings. 

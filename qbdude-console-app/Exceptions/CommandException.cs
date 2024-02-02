@@ -1,6 +1,6 @@
 using System.CommandLine.Invocation;
 
-namespace qbdude.exceptions;
+namespace QBdude.Exceptions;
 
 /// <summary>
 /// Represents errors that occur during command execution.

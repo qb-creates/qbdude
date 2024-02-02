@@ -1,11 +1,11 @@
 using System.Diagnostics;
 using System.IO.Ports;
-using qbdude.exceptions;
-using qbdude.invocation.results;
-using qbdude.models;
-using qbdude.ui;
+using QBdude.Exceptions;
+using QBdude.Invocation.Results;
+using QBdude.Models;
+using QBdude.UI;
 
-namespace qbdude.utilities;
+namespace QBdude.Utilities;
 
 /// <summary>
 /// Utility that is used to upload program data to a microcontroller.

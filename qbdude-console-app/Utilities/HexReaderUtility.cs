@@ -1,9 +1,9 @@
 using System.Text.RegularExpressions;
-using qbdude.exceptions;
-using qbdude.invocation.results;
-using qbdude.ui;
+using QBdude.Exceptions;
+using QBdude.Invocation.Results;
+using QBdude.UI;
 
-namespace qbdude.utilities;
+namespace QBdude.Utilities;
 
 /// <summary>
 /// Utility that is used to read a hex file and extract the program data records from it.

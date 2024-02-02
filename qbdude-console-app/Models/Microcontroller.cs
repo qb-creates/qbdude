@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
-using qbdude.converters;
+using QBdude.Converters;
 
-namespace qbdude.models;
+namespace QBdude.Models;
 
 public sealed class Microcontroller
 {

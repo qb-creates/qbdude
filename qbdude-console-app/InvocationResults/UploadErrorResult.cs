@@ -1,7 +1,7 @@
 using System.CommandLine.Invocation;
-using qbdude.exceptions;
+using QBdude.Exceptions;
 
-namespace qbdude.invocation.results;
+namespace QBdude.Invocation.Results;
 
 /// <summary>
 /// Upload error invocation result. This result is returned when there is an error uploading the program data to the microcontroller.

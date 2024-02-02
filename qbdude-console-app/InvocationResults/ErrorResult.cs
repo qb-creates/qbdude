@@ -1,7 +1,7 @@
 using System.CommandLine.Invocation;
-using qbdude.exceptions;
+using QBdude.Exceptions;
 
-namespace qbdude.invocation.results;
+namespace QBdude.Invocation.Results;
 
 /// <summary>
 /// Generic error invocation result
