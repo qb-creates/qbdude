@@ -57,7 +57,7 @@ public static class UploadUtility
         {
             OpenComPort();
             DefinePageDataQueue();
-            StartBootloadProcess();
+            await StartBootloadProcess();
             await TransmitData();
         }
     }
@@ -72,6 +72,7 @@ public static class UploadUtility
 
         try
         {
+            _serialPort.ReadTimeout = 2000;
             _serialPort.Open();
         }
         catch
@@ -131,21 +132,20 @@ public static class UploadUtility
     /// <exception cref="DeviceErrorException">Exception that is produced when there is an error with the devices signature or boot configuration.</exception>
     /// <exception cref="ProgramSizeTooLargeException">Exception that is produced when the program data size is too large to fit on the microcontroller.</exception>
     /// <exception cref="CommunicationFailedException">Exception that is produced when communication with the microcontroller is lost.</exception>
-    private static void StartBootloadProcess()
+    private static async Task StartBootloadProcess()
     {
-        _serialPort.ReadTimeout = 2000;
         _serialPort.Write(READY_TO_UPDATE_COMMAND);
+        await Task.Delay(1000);
 
         try
         {
-            // Wait until the signature and high fuse byte has been received.
-            while (_serialPort.BytesToRead < 4) {}
-
             byte[] signature = new byte[3];
             _serialPort.Read(signature, 0, 3);
 
             byte highFuseBits = (byte)_serialPort.ReadByte();
             int bootFlashSize = _selectedMCU.GetBootConfigSize(highFuseBits, out bool bootResetEnabled);
+
+            Console.WriteLine("Retrieving device information.\r\n");
 
             if (!_selectedMCU.Signature.SequenceEqual(signature) && !_forceUpdate)
             {
@@ -162,7 +162,7 @@ public static class UploadUtility
                 throw new ProgramSizeTooLargeException(new UploadErrorResult(ExitCode.ProgramSizeTooLarge));
             }
 
-            ConsoleWrapper.WriteLine($"{_serialPort.PortName} open: Writing flash ({_programDataCount} bytes)\r\n");
+            ConsoleWrapper.WriteLine($"Writing flash ({_programDataCount} bytes)\r\n");
         }
         catch (TimeoutException)
         {
