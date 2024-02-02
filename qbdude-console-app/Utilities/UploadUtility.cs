@@ -133,11 +133,14 @@ public static class UploadUtility
     /// <exception cref="CommunicationFailedException">Exception that is produced when communication with the microcontroller is lost.</exception>
     private static void StartBootloadProcess()
     {
-        _serialPort.ReadTimeout = 1000;
+        _serialPort.ReadTimeout = 2000;
         _serialPort.Write(READY_TO_UPDATE_COMMAND);
 
         try
         {
+            // Wait until the signature and high fuse byte has been received.
+            while (_serialPort.BytesToRead < 4) {}
+
             byte[] signature = new byte[3];
             _serialPort.Read(signature, 0, 3);
 
@@ -185,20 +188,23 @@ public static class UploadUtility
         {
             await progressBar.Start();
 
+            // Run loop until all data has been sent to the microcontroller and we have received an acknowledgement for each byte sent.
             while (progressBar.CurrentPercentage != 100)
             {
                 _cancellationToken.ThrowIfCancellationRequested();
                 receivedData += _serialPort.ReadExisting();
 
+                // Received Byte Aknowledgement. Update the progress bar.
                 if (receivedData.Contains(BYTE_AKNOWLEDGEMENT))
                 {
                     var byteAckLength = receivedData.Count(f => f == BYTE_AKNOWLEDGEMENT);
 
                     progressBar.Update(byteAckLength);
-                    receivedData = receivedData.Replace(BYTE_AKNOWLEDGEMENT, '\x00');
+                    receivedData = receivedData.Replace(BYTE_AKNOWLEDGEMENT.ToString(), string.Empty);
                     stopwatch.Restart();
                 }
 
+                // Received a ready to update acknowledgement or a page received aknowledgement. Send another page of data.
                 if (receivedData.Contains(READY_TO_UPDATE_AKNOWLEDGEMENT) || receivedData.Contains(PAGE_AKNOWLEDGEMENT))
                 {
                     if (_pageDataQueue.Count > 0)

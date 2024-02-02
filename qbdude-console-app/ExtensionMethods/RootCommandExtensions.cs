@@ -118,7 +118,6 @@ public static class RootCommandExtensions
 				var programData = await HexReaderUtility.ExtractProgramData(filepath!, token);
 
 				await UploadUtility.UploadProgramData(com!, programData, selectedMCU, force, token);
-				ConsoleWrapper.WriteLine($"qbdude done. Thank you.");
 			}
 			catch (Exception e)
 			{

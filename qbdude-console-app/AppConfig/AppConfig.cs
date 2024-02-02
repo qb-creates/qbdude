@@ -17,7 +17,7 @@ public static class AppConfig
 
     private static void GetMicrocontrollerList()
     {
-        using (StreamReader file = new StreamReader("microcontrollers.json"))
+        using (StreamReader file = new StreamReader($"{AppDomain.CurrentDomain.BaseDirectory}\\microcontrollers.json"))
         {
             try
             {

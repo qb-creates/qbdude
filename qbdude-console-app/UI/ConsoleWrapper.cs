@@ -105,7 +105,10 @@ public static class ConsoleWrapper
         }
         set
         {
-            Console.CursorLeft = value;
+            if (value < Console.BufferWidth)
+            {
+                Console.CursorLeft = value;
+            }
         }
     }
 
