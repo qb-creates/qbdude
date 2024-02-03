@@ -40,7 +40,7 @@ public static class OptionValidator
         
         if (!serialPortDescriptions.Any(portDescription => portDescription.Port.Equals(comPort, StringComparison.OrdinalIgnoreCase)))
         {
-            result.ErrorMessage = "Please enter a valid vomport. Use \"qbdude comport\" to view available comports on your system.";
+            result.ErrorMessage = "Please enter a valid comport. Use \"qbdude comport\" to view available comports on your system.";
             return null!;
         }
 
