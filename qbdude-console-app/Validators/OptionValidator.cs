@@ -1,5 +1,5 @@
 using System.CommandLine.Parsing;
-using System.IO.Ports;
+using RJCP.IO.Ports;
 using QBdude.Config;
 
 namespace QBdude.Validators;
@@ -35,7 +35,7 @@ public static class OptionValidator
     /// <returns>Returns null if the validation fails.</returns>
     public static string OnValidateComPort(ArgumentResult result)
     {
-        var serialPorts = SerialPort.GetPortNames();
+        var serialPorts = SerialPortStream.GetPortDescriptions().Select(port => port.Description);
         var comPort = result.Tokens.Single().Value;
 
         if (!serialPorts.Contains(comPort))

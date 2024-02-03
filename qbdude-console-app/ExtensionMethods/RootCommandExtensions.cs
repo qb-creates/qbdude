@@ -7,6 +7,7 @@ using QBdude.Models;
 using QBdude.UI;
 using QBdude.Utilities;
 using Serilog;
+using RJCP.IO.Ports;
 using static QBdude.Validators.OptionValidator;
 
 namespace QBdude.Extensions;
@@ -29,9 +30,11 @@ public static class RootCommandExtensions
 		{
 			ConsoleWrapper.WriteLine("\r\nAvailable Com Ports:");
 
-			foreach (string serialPort in SerialPort.GetPortNames())
+			PortDescription[] portDescriptions = SerialPortStream.GetPortDescriptions();
+
+			foreach (PortDescription portDescription in portDescriptions)
 			{
-				ConsoleWrapper.WriteLine(serialPort);
+				ConsoleWrapper.WriteLine(portDescription.Description);
 			}
 
 			ConsoleWrapper.WriteLine();

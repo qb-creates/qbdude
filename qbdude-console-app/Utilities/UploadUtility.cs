@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using System.IO.Ports;
+using RJCP.IO.Ports;
 using QBdude.Exceptions;
 using QBdude.Invocation.Results;
 using QBdude.Models;
@@ -28,7 +28,7 @@ public static class UploadUtility
     private const int COMMUNICATION_TIMEOUT = 5;
 
     private static Queue<List<byte>> _pageDataQueue = new Queue<List<byte>>();
-    private static SerialPort _serialPort = new SerialPort();
+    private static SerialPortStream _serialPortStream = new SerialPortStream();
     private static CancellationToken _cancellationToken;
     private static Microcontroller _selectedMCU;
     private static List<byte> _programData = new List<byte>();
@@ -53,7 +53,7 @@ public static class UploadUtility
         _cancellationToken = cancellationToken;
         _pageDataQueue.Clear();
 
-        using (_serialPort = new SerialPort(comPort, 115200, Parity.None, 8, StopBits.One))
+        using (_serialPortStream = new SerialPortStream(comPort, 115200, 8, Parity.None, StopBits.One))
         {
             OpenComPort();
             DefinePageDataQueue();
@@ -68,16 +68,16 @@ public static class UploadUtility
     /// <exception cref="ComPortTimeoutException">Exception that is produced when the comport fails to open..</exception>
     private static void OpenComPort()
     {
-        ConsoleWrapper.WriteLine($"Opening {_serialPort.PortName}\r\n");
+        ConsoleWrapper.WriteLine($"Opening {_serialPortStream.PortName}\r\n");
 
         try
         {
-            _serialPort.ReadTimeout = 2000;
-            _serialPort.Open();
+            _serialPortStream.ReadTimeout = 2000;
+            _serialPortStream.Open();
         }
         catch
         {
-            throw new ComPortTimeoutException($"Failed to open {_serialPort.PortName}.", new UploadErrorResult(ExitCode.FailedToOpenCom));
+            throw new ComPortTimeoutException($"Failed to open {_serialPortStream.PortName}.", new UploadErrorResult(ExitCode.FailedToOpenCom));
         }
 
         _cancellationToken.ThrowIfCancellationRequested();
@@ -134,15 +134,15 @@ public static class UploadUtility
     /// <exception cref="CommunicationFailedException">Exception that is produced when communication with the microcontroller is lost.</exception>
     private static async Task StartBootloadProcess()
     {
-        _serialPort.Write(READY_TO_UPDATE_COMMAND);
+        _serialPortStream.Write(READY_TO_UPDATE_COMMAND);
         await Task.Delay(1000);
 
         try
         {
             byte[] signature = new byte[3];
-            _serialPort.Read(signature, 0, 3);
+            _serialPortStream.Read(signature, 0, 3);
 
-            byte highFuseBits = (byte)_serialPort.ReadByte();
+            byte highFuseBits = (byte)_serialPortStream.ReadByte();
             int bootFlashSize = _selectedMCU.GetBootConfigSize(highFuseBits, out bool bootResetEnabled);
 
             Console.WriteLine("Retrieving device information.\r\n");
@@ -192,7 +192,7 @@ public static class UploadUtility
             while (progressBar.CurrentPercentage != 100)
             {
                 _cancellationToken.ThrowIfCancellationRequested();
-                receivedData += _serialPort.ReadExisting();
+                receivedData += _serialPortStream.ReadExisting();
 
                 // Received Byte Aknowledgement. Update the progress bar.
                 if (receivedData.Contains(BYTE_AKNOWLEDGEMENT))
@@ -210,7 +210,7 @@ public static class UploadUtility
                     if (_pageDataQueue.Count > 0)
                     {
                         byte[] data = _pageDataQueue.Dequeue().ToArray();
-                        _serialPort.Write(data, 0, data.Length);
+                        _serialPortStream.Write(data, 0, data.Length);
                     }
 
                     receivedData = string.Empty;
