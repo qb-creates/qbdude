@@ -57,7 +57,7 @@ public static class RootCommandExtensions
 
 			foreach (KeyValuePair<string, Microcontroller> kvp in AppConfig.DeviceDictionary)
 			{
-				var signature = string.Join("", kvp.Value.Signature);
+				var signature = string.Join("", kvp.Value.Signature.Select(b => b.ToString("X2")));
 				ConsoleWrapper.WriteLine($"{kvp.Value.Name,-15}{kvp.Key,-15}{kvp.Value.FlashSize,-20}{signature,-20}");
 			}
 
