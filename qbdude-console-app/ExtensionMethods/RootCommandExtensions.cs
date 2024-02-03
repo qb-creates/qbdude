@@ -28,7 +28,7 @@ public static class RootCommandExtensions
 
 		getComPortsCommand.SetHandler(() =>
 		{
-			ConsoleWrapper.WriteLine("\r\nAvailable Com Ports:");
+			ConsoleWrapper.WriteLine("\r\nAvailable Com Ports:\r\n");
 
 			PortDescription[] portDescriptions = SerialPortStream.GetPortDescriptions();
 

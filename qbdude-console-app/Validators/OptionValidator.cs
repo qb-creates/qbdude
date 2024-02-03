@@ -21,7 +21,7 @@ public static class OptionValidator
 
         if (!AppConfig.DeviceDictionary.ContainsKey(partNumber))
         {
-            result.ErrorMessage = "Please enter a supported part number. Use qbdude partnumber to get supported devices.";
+            result.ErrorMessage = "Please enter a valid part number. Use \"qbdude partnumber\" to view supported devices.";
             return null!;
         }
 
@@ -35,12 +35,12 @@ public static class OptionValidator
     /// <returns>Returns null if the validation fails.</returns>
     public static string OnValidateComPort(ArgumentResult result)
     {
-        var serialPorts = SerialPortStream.GetPortDescriptions().Select(port => port.Description);
+        var serialPortDescriptions = SerialPortStream.GetPortDescriptions();
         var comPort = result.Tokens.Single().Value;
-
-        if (!serialPorts.Contains(comPort))
+        
+        if (!serialPortDescriptions.Any(portDescription => portDescription.Port.Equals(comPort, StringComparison.OrdinalIgnoreCase)))
         {
-            result.ErrorMessage = "Valid comport was not entered.\r\n\r\nAvailable Com Ports:\r\n" + String.Join("\r\n", serialPorts);
+            result.ErrorMessage = "Please enter a valid vomport. Use \"qbdude comport\" to view available comports on your system.";
             return null!;
         }
 

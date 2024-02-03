@@ -149,7 +149,7 @@ public static class ConsoleWrapper
     /// <param name="value">The value to write.</param>
     public static void Write(string value)
     {
-        var colorElements = Regex.Matches(value, @"<c:([a-zA-Z]+)?>.*?</c:([a-zA-Z]+)?>").Select(match => match.Value).ToArray();
+        var colorElements = Regex.Matches(value, @"<c:([a-zA-Z]+)?>.*?</c:([a-zA-Z]+)?>", RegexOptions.Singleline).Select(match => match.Value).ToArray();
 
         if (colorElements.Length == 0)
         {
