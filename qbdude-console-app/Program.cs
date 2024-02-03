@@ -13,8 +13,8 @@ using Serilog;
 namespace QBdude;
 
 /// <summary>
-/// QBdude can be used to upload program data to avr microcontrollers running a QBcreate's bootloader.
-/// QBcreate's bootloaders and supported microcontrollers can be found here https://github.com/qb-creates/avr-bootloaders.
+/// QBdude can be used to upload program data to avr microcontrollers running a QB.Creates bootloader.
+/// QB.Creates bootloaders and supported microcontrollers can be found here https://github.com/qb-creates/avr-bootloaders.
 /// 
 /// This application utilizes the System.CommandLine nuget package. System.CommandLine is currently in PREVIEW.
 /// For more information see https://learn.microsoft.com/en-us/dotnet/standard/commandline/
