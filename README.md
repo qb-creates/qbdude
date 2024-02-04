@@ -5,28 +5,23 @@ QB.DUDE is an application designed for uploading program data to the on-chip mem
 
 1. [Installing QB.DUDE](#installing)
 2. [Using QB.DUDE](#using)
-    - [Upload](#upload)
-    - [Part Numbers](#partnumbers)
-    - [Comports](#comports) 
+    - [Upload Command](#upload)
+    - [Part Numbers Command](#partnumbers)
+    - [Comports Command](#comports) 
 3. [Simplifying Execution](#simplifying)
-    - [LED Driver](#leddriver)
-    - [Timer Overview](#clocktimer) 
-    - [Parts List](#clockpartslist) 
-4. [Power Consumption](#powerconsumption)
-5. [Schematics](#schematics)
-    - [ESC Driver Schematic](#escschematic)
-    - [Clock Schematic](#clockschematic)
-6. [STL Viewer](#stlviewer)
-    - [Case Base](#casebase)
-    - [Case Top](#casetop)
+    - [Setting Environment Path (Windows 10)](#environment)
+    - [VS Code With PlatformIO extensions](#vscode) 
+    - [Micrchip Studio And External Tools](#microchip) 
 
-## Installing QB.DUDE<a name="installing"></a>
+## 1. Installing QB.DUDE<a name="installing"></a>
 To install the QB.DUDE, unzip the provided zip file and ensure all its contents reside in the same directory. Place the extracted files in a location of your choice, ensuring it's somewhere easily accessible for future use. The QB.DUDE executable is now ready for use in its designated directory. The latest release for QB.DUDE can be found <a href="https://github.com/qb-creates/qbdude/releases">here</a>
 
-## Using QB.DUDE<a name="using"></a>
+## 2. Using QB.DUDE<a name="using"></a>
 QB.DUDE is a command line application. Run the ```qbdude``` executable in the command line with the '-h' option or without any options to get a list of commands and options. Run the ```qbdude``` executable in the command line with a valid command followed by -h option to give more information about that command. QB.DUDE saves logs in a directory called ./qbdude within the user's folder, providing a centralized location for tracking program activities and debugging information.
 
-### Upload<a name="upload"></a>
+<br>
+
+### Upload Command<a name="upload"></a>
 The following checks will be performed to make sure that the hex file can be uploaded to the microcontroller. If any of these checks fail, the upload process will fail.
 - Will make sure the boot reset vector is set for supported microcontrollers.
 - Will make sure that the microcontroller has enough flash space to hold all of the data in the HEX file.
@@ -48,7 +43,7 @@ qbdude upload -p m128 -C COM5 -F firmware.hex
 
 <br> 
 
-### Part Numbers<a name="partnumbers"></a>
+### Part Numbers Command<a name="partnumbers"></a>
 Supported partnumbers can be found in the microcontrollers.json file. Part numbers are the key for each object in the array. 
 Alternatively, you can run the ```partnumber``` command to get all supported part numbers
 
@@ -61,7 +56,7 @@ qbdude partnumber
 
 <br> 
 
-### Comports<a name="comports"></a>
+### Comports Command<a name="comports"></a>
 Run the ```comport``` command without an options to view the available comports on your system. All comport names will be printed along with their description.
 
 <img src = "images/comport.png">
@@ -73,8 +68,8 @@ qbdude comport
 
 <br> 
 
-## Simplifying Execution<a name="simplifying"></a>
-### Setting Environment Path (Windows 10)
+## 3. Simplifying Execution<a name="simplifying"></a>
+### Setting Environment Path (Windows 10)<a name="environment"></a>
 Setting an environment path for QB.DUDE will make it accessible from any directory in the terminal without having to provide the full path to the executable. It simplifies the command line usage and allows you to run the executable directly by its name, regardless of the current working directory.
 
 #### Steps to setup a path for QB.DUDE in the environment variables:
@@ -101,7 +96,9 @@ Setting an environment path for QB.DUDE will make it accessible from any directo
       
 <img src = "images/qbdude.png">
 
-### VS Code With PlatformIO extensions
+<br> 
+
+### VS Code With PlatformIO extensions<a name="vscode"></a>
 If you're coding for AVR microcontrollers in VS Code with the PlatformIO extension, using a script to run QB.DUDE can simplify things. With a script in VS Code, you can easily upload programs without leaving the editor. QB.DUDE does its job right inside the integrated terminal, so you can handle your projects without switching around. When you create a script, a button appears in the NPM SCRIPTS toolbar with its name, allowing you to upload with just one click.
 
 #### Steps to setup node and create a script:
@@ -125,8 +122,10 @@ If you're coding for AVR microcontrollers in VS Code with the PlatformIO extensi
     - Open a terminal in VS Code ( ctrl + ` ).
     - Look for the "NPM SCRIPTS" toolbar at the bottom.
     - Click the button with the name of your qbdude script (e.g., "qbdude-upload"). If the button is not there, you may have to run "npm run qbdude-upload" in the terminal first.
-  
-### Micrchip Studio And External Tools
+
+<br>
+
+### Micrchip Studio And External Tools<a name="microchip"></a>
 If you're in Microchip Studio, setting up QB.DUDE as an external tool is a useful approach to improve your workflow. Through the External Tools menu, you can easily trigger QB.DUDE uploads without the need to switch between applications.
 
 #### Steps to setup external tools:
