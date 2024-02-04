@@ -2,7 +2,8 @@
 
 QB.DUDE is a program for uploading program data to the on chip memories of Microship's <a href="https://en.wikipedia.org/wiki/AVR_microcontrollers">AVR microcontrollers.</a>. This utility will upload program data to AVR microcontrollers that are running a QB.Creates bootloader. Supported microcontrollers and QB.Creates bootloaders can be found <a href="https://github.com/qb-creates/avr-bootloaders">here</a>.
 
-All QB.DUDE releases can be found here: https://github.com/qb-creates/qbdude/releases
+## Installing QB.DUDE
+To install the QB.DUDE, unzip the provided zip file and ensure all its contents reside in the same directory. Place the extracted files in a location of your choice, ensuring it's somewhere easily accessible for future use. The QB.DUDE executable is now ready for use in its designated directory. The latest release for QB.DUDE can be found <a href="https://github.com/qb-creates/qbdude/releases">here</a>
 
 ## Using QB.DUDE 
 QB.DUDE is a command line application. Run the ```qbdude``` executable in the command line with the '-h' option or without any options to get a list of commands and options. Run the ```qbdude``` executable in the command line with a valid command followed by -h option to give more information about that command.
@@ -52,9 +53,14 @@ Comport example:
 qbdude comport
 ```
 
+<br> 
+
 ## Simplifying Execution
 ### Setting Environment Path (Windows 10)
 Setting an environment path for QB.DUDE will make it accessible from any directory in the terminal without having to provide the full path to the executable. It simplifies the command line usage and allows you to run the executable directly by its name, regardless of the current working directory.
+
+#### Steps to setup a path for QB.DUDE in the environment variables:
+
 1. Open System Properties:
     - Open the Start menu.
     - Begin typing "View advanced system settings" (without quotes).
@@ -80,6 +86,7 @@ Setting an environment path for QB.DUDE will make it accessible from any directo
 ### VS Code With PlatformIO extensions
 If you're coding for AVR microcontrollers in VS Code with the PlatformIO extension, using a script to run QB.DUDE can simplify things. With a script in VS Code, you can easily upload programs without leaving the editor. QB.DUDE does its job right inside the integrated terminal, so you can handle your projects without switching around. When you create a script, a button appears in the NPM SCRIPTS toolbar with its name, allowing you to upload with just one click.
 
+#### Steps to setup node and create a script:
 1. Install node.js (if not already installed)
     - Visit the official Node.js website.
     - Download the latest LTS version of Node.js (includes npm).
@@ -104,13 +111,18 @@ If you're coding for AVR microcontrollers in VS Code with the PlatformIO extensi
 ### Micrchip Studio And External Tools
 If you're in Microchip Studio, setting up QB.DUDE as an external tool is a useful approach to improve your workflow. Through the External Tools menu, you can easily trigger QB.DUDE uploads without the need to switch between applications.
 
+#### Steps to setup external tools:
 1. Open Microchip Studio.
 2. Navigate to Tools > External Tools.
 3. In the External Tools window, click on the Add button to create a new external tool.
 4. Set the following parameters:
-  - Title: Enter a descriptive title, such as "qbdude Upload."
-  - Command: Provide the full path to the qbdude executable or the command needed to run it. For example, if qbdude is in your system's PATH, you can simply enter qbdude.
-  - Arguments: Specify the arguments needed for the qbdude upload command. For instance, if you need to upload a specific part with a specific COM port and file path, you can enter something like -p [PARTNUMBER] -C [COMPORT] -F [FILEPATH].
-  - Uncheck the Use Output Window and Close on Exit options. QB.DUDE currently can not run in Microchip Studio's output window
-5. Optionally, you can set up a keyboard shortcut under the Tools > Options > Environment > Keyboard menu to quickly access the external tool.
-6. Click OK to save the external tool configuration.
+    - Title: Enter a descriptive title, such as "qbdude Upload."
+    - Command: Provide the full path to the qbdude executable or the command needed to run it. For example, if qbdude is in your system's PATH, you can simply enter qbdude.
+    - Arguments: Specify the arguments needed for the qbdude upload command.
+        
+        ```
+        -p [PARTNUMBER] -C [COMPORT] -F [FILEPATH].
+        ```
+5. Uncheck the Use Output Window and Close on Exit options. QB.DUDE currently can not run in Microchip Studio's output window
+6. Optionally, you can set up a keyboard shortcut under the Tools > Options > Environment > Keyboard menu to quickly access the external tool.
+7. Click OK to save the external tool configuration.
