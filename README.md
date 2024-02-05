@@ -10,8 +10,8 @@ QB.DUDE is an application designed for uploading program data to the on-chip mem
     - [Comports Command](#comports) 
 3. [Simplifying Execution](#simplifying)
     - [Setting Environment Path (Windows 10)](#environment)
-    - [VS Code With PlatformIO extensions](#vscode) 
-    - [Micrchip Studio And External Tools](#microchip) 
+    - [VS Code With PlatformIO extension](#vscode) 
+    - [Microchip Studio And External Tools](#microchip) 
 
 ## 1. Installing QB.DUDE<a name="installing"></a>
 To install the QB.DUDE, unzip the provided zip file and ensure all its contents reside in the same directory. Place the extracted files in a location of your choice, ensuring it's somewhere easily accessible for future use. The QB.DUDE executable is now ready for use in its designated directory. The latest release for QB.DUDE can be found <a href="https://github.com/qb-creates/qbdude/releases">here</a>
@@ -98,7 +98,7 @@ Setting an environment path for QB.DUDE will make it accessible from any directo
 
 <br> 
 
-### VS Code With PlatformIO extensions<a name="vscode"></a>
+### VS Code With PlatformIO extension<a name="vscode"></a>
 If you're coding for AVR microcontrollers in VS Code with the PlatformIO extension, using a script to run QB.DUDE can simplify things. With a script in VS Code, you can easily upload programs without leaving the editor. QB.DUDE does its job right inside the integrated terminal, so you can handle your projects without switching around. When you create a script, a button appears in the NPM SCRIPTS toolbar with its name, allowing you to upload with just one click.
 
 #### Steps to setup node and create a script:
@@ -125,7 +125,7 @@ If you're coding for AVR microcontrollers in VS Code with the PlatformIO extensi
 
 <br>
 
-### Micrchip Studio And External Tools<a name="microchip"></a>
+### Microchip Studio And External Tools<a name="microchip"></a>
 If you're in Microchip Studio, setting up QB.DUDE as an external tool is a useful approach to improve your workflow. Through the External Tools menu, you can easily trigger QB.DUDE uploads without the need to switch between applications.
 
 #### Steps to setup external tools:
