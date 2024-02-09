@@ -111,7 +111,7 @@ If you're coding for AVR microcontrollers in VS Code with the PlatformIO extensi
    npm init
    ```
 3. Add a Script to generated package.json file
-   ```
+   ``` json
     "scripts": {
       "qbdude-upload": "qbdude upload -p [PARTNUMBER] -C [COMPORT] -F [FILEPATH]"
     },
@@ -143,3 +143,16 @@ If you're in Microchip Studio, setting up QB.DUDE as an external tool is a usefu
 5. Uncheck the Use Output Window and Close on Exit options. QB.DUDE currently can not run in Microchip Studio's output window
 6. Optionally, you can set up a keyboard shortcut under the Tools > Options > Environment > Keyboard menu to quickly access the external tool.
 7. Click OK to save the external tool configuration.
+
+## 4. Special Notes<a name="notes"></a> 
+- When launching QB.DUDE in VS Code, ensure that `integratedTerminal` is selected for the 'console' property in your launch configuration within the 'launch.json' file. This ensures that application output will be properly displayed.
+
+``` json
+{
+    "configurations": [
+        {
+            "console": "integratedTerminal"
+        }
+    ]
+}
+```
